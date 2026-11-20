@@ -190,7 +190,7 @@
       <div class="stack">
         <div class="layer l-user new">
           <div class="t">User prompt</div>
-          <span class="quote">“70-year-old man, never smoked. Chest CT for chronic cough. Single 7 mm solid nodule, right lower lobe, smooth margins. No prior CT. Write the report.”</span>
+          <span class="quote">“70-year-old man, never smoked. Non-contrast chest CT for chronic cough. Single 7 mm solid nodule, right lower lobe, smooth margins. No prior CT. Write the report.”</span>
         </div>
       </div>
       <div class="llm"><div class="arrow">▼</div><div class="node">LLM</div><div class="arrow">▼</div></div>
@@ -224,14 +224,14 @@
         </div>
         <div class="layer l-user">
           <div class="t">User prompt</div>
-          <span class="quote">“70-year-old man, never smoked. Chest CT for chronic cough…”</span>
+          <span class="quote">“70-year-old man, never smoked. Non-contrast chest CT for chronic cough…”</span>
         </div>
       </div>
       <div class="llm"><div class="arrow">▼</div><div class="node">LLM</div><div class="arrow">▼</div></div>
       <div class="out-box">
         <div class="lbl">Report (abridged)</div>
         <div class="report">
-          <p><span class="sec">TECHNIQUE</span> <span class="gap">Chest CT; contrast use not provided.</span></p>
+          <p><span class="sec">TECHNIQUE</span> Non-contrast multidetector-row chest CT.</p>
           <p><span class="sec">FINDINGS</span> Lungs: <span class="gap">solitary 7 mm solid nodule, smooth margins, right lower lobe.</span> Other structures: not described in the request.</p>
           <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
           <p><span class="sec">RECOMMENDATION</span> Non-contrast CT in 6–12 months, consider 18–24 months.</p>
@@ -269,7 +269,7 @@
           </div>
           <div class="item">
             <svg width="30" height="36"><use href="#i-chat"/></svg>
-            <div><b>Radiologist's answers to step 1</b><small>Non-contrast · no risk factors · superior segment · no calcification or fat · mean diameter · no other findings</small></div>
+            <div><b>Radiologist's answers to step 1</b><small>No risk factors · superior segment · no calcification or fat · mean diameter · no other findings</small></div>
           </div>
           <div class="item rag">
             <svg width="30" height="36"><use href="#i-db"/></svg>
@@ -278,13 +278,14 @@
         </div>
         <div class="layer l-user">
           <div class="t">User prompt</div>
-          <span class="quote">“70-year-old man, never smoked. Chest CT for chronic cough…”</span>
+          <span class="quote">“70-year-old man, never smoked. Non-contrast chest CT for chronic cough…”</span>
         </div>
       </div>
       <div class="llm"><div class="arrow">▼</div><div class="node">LLM</div><div class="arrow">▼</div></div>
       <div class="out-box">
         <div class="lbl">Report (abridged)</div>
         <div class="report">
+          <p><span class="sec">TECHNIQUE</span> <span class="ok">Non-contrast multidetector-row chest CT.</span></p>
           <p><span class="sec">FINDINGS</span> <span class="ok">Solid nodule, superior segment (S6) right lower lobe, 7 mm mean diameter, smooth, no calcification or fat.</span> <span class="ok">No other relevant findings.</span></p>
           <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
           <p><span class="sec">RECOMMENDATION</span> <span class="ok">Low-dose non-contrast CT in 6–12 months</span>, consider 18–24 months <span class="ok">(Fleischner 2017)</span>.</p>
@@ -329,13 +330,14 @@
         </div>
         <div class="layer l-user">
           <div class="t">User prompt</div>
-          <span class="quote">“70-year-old man, never smoked. Chest CT for chronic cough…”</span>
+          <span class="quote">“70-year-old man, never smoked. Non-contrast chest CT for chronic cough…”</span>
         </div>
       </div>
       <div class="llm"><div class="arrow">▼</div><div class="node">LLM</div><div class="arrow">▼</div></div>
       <div class="out-box">
         <div class="lbl">Report · illustrative</div>
         <div class="report">
+          <p><span class="sec">TECHNIQUE</span> Non-contrast multidetector-row chest CT.</p>
           <p><span class="sec">FINDINGS</span> <span class="same">As in step 2.</span></p>
           <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
           <p><span class="sec">RECOMMENDATION</span> <span class="ok">Low-dose non-contrast CT between May 8 and November 8, 2027</span>, consider 18–24 months <span class="ok">(Fleischner 2017)</span>.</p>
