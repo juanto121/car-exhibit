@@ -1,0 +1,63 @@
+GPT-6.1 Sol (openai/gpt-6.1-sol via openai, effort=medium, batch): 0 done, 10 to run
+  submitted batch batch-1794876781-XbkwWNiuiPPFJq1ULEik (10 requests)
+Traceback (most recent call last):
+  File "/Users/felipe/Documents/other/car-exhibit/experiment/experiment.py", line 1165, in <module>
+    main()
+    ~~~~^^
+  File "/Users/felipe/Documents/other/car-exhibit/experiment/experiment.py", line 1159, in main
+    {"estimate": cmd_estimate, "run": cmd_run, "judge": cmd_judge, "cost": cmd_cost,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     "score": cmd_score, "review": cmd_review, "consistency": cmd_consistency,
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     "archive": cmd_archive}[args.cmd](args)
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/felipe/Documents/other/car-exhibit/experiment/experiment.py", line 454, in cmd_run
+    run_generation_batch(p, settings, todo)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/felipe/Documents/other/car-exhibit/experiment/experiment.py", line 436, in run_generation_batch
+    run_batch(f"run:{p}", settings["model"], settings["route"], items, on_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/felipe/Documents/other/car-exhibit/experiment/experiment.py", line 333, in run_batch
+    b = or_http("GET", f"/batches/{job['id']}")
+  File "/Users/felipe/Documents/other/car-exhibit/experiment/experiment.py", line 300, in or_http
+    with urllib.request.urlopen(req, timeout=120) as r:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/felipe/.local/share/uv/python/cpython-3.14.2-macos-aarch64-none/lib/python3.14/urllib/request.py", line 187, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/felipe/.local/share/uv/python/cpython-3.14.2-macos-aarch64-none/lib/python3.14/urllib/request.py", line 493, in open
+    response = meth(req, response)
+  File "/Users/felipe/.local/share/uv/python/cpython-3.14.2-macos-aarch64-none/lib/python3.14/urllib/request.py", line 602, in http_response
+    response = self.parent.error(
+        'http', request, response, code, msg, hdrs)
+  File "/Users/felipe/.local/share/uv/python/cpython-3.14.2-macos-aarch64-none/lib/python3.14/urllib/request.py", line 531, in error
+    return self._call_chain(*args)
+           ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/felipe/.local/share/uv/python/cpython-3.14.2-macos-aarch64-none/lib/python3.14/urllib/request.py", line 464, in _call_chain
+    result = func(*args)
+  File "/Users/felipe/.local/share/uv/python/cpython-3.14.2-macos-aarch64-none/lib/python3.14/urllib/request.py", line 611, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 404: Not Found
+GPT-6.1 Sol (openai/gpt-6.1-sol via openai, effort=medium, batch): 0 done, 10 to run
+  resuming batch batch-1794876781-XbkwWNiuiPPFJq1ULEik
+  in_progress: 0/10 done, 0 failed (2026-11-17T00:53:24+00:00)
+  in_progress: 8/10 done, 0 failed (2026-11-17T00:54:25+00:00)
+  in_progress: 8/10 done, 0 failed (2026-11-17T00:55:26+00:00)
+  in_progress: 8/10 done, 0 failed (2026-11-17T00:56:27+00:00)
+  in_progress: 8/10 done, 0 failed (2026-11-17T00:57:28+00:00)
+  in_progress: 8/10 done, 0 failed (2026-11-17T00:58:29+00:00)
+  in_progress: 8/10 done, 0 failed (2026-11-17T00:59:30+00:00)
+  completed: 10/10 done, 0 failed (2026-11-17T01:00:31+00:00)
+  batch completed, billed $0.0125
+Claude Opus 5.5 (anthropic/claude-opus-5.5 via anthropic, effort=medium, batch): 0 done, 10 to run
+  submitted batch batch-1794877231-Evz7WYenrlW0C77n3jny (10 requests)
+  status check returned 404; retrying in 60s
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:01:33+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:02:34+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:03:34+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:04:35+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:05:36+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:06:36+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:07:37+00:00)
+  completed: 10/10 done, 0 failed (2026-11-17T01:08:37+00:00)
+  batch completed, billed $0.1705

@@ -1,0 +1,232 @@
+{
+  "prompt": "70-year-old man, never smoked. Chest CT for chronic cough. Single 7 mm solid nodule, right lower lobe, smooth margins. No prior CT. Write the report.",
+  "prompt_sha256": "37c8e43806ef3a01955e8323f619a3edf780993fbed0311545e23b89bfa5f7d7",
+  "scored": "2026-11-17T01:32:02+00:00",
+  "models": {
+    "openai": {
+      "label": "GPT-6.1 Sol",
+      "model": "openai/gpt-6.1-sol",
+      "effort": "medium",
+      "n_scored": 10,
+      "n_errors": 0,
+      "organization": {
+        "mean": 0.6,
+        "sd": 0.053,
+        "min": 0.5,
+        "max": 0.625
+      },
+      "completeness": {
+        "mean": 0.758,
+        "sd": 0.061,
+        "min": 0.667,
+        "max": 0.833
+      },
+      "fidelity": {
+        "mean": 1.0,
+        "sd": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "fully_organized_rate": 0.0,
+      "faithful_rate": 1.0,
+      "assumed_technique_rate": 0.8,
+      "asked_questions_rate": 0.0,
+      "placeholders_rate": 0.0,
+      "completeness_item_rates": {
+        "age": 0.0,
+        "sex": 0.0,
+        "smoking_history": 0.3,
+        "indication": 0.8,
+        "size": 1.0,
+        "attenuation": 1.0,
+        "number": 1.0,
+        "location": 1.0,
+        "margins": 1.0,
+        "comparison": 1.0,
+        "followup_interval": 1.0,
+        "guideline_named": 1.0
+      },
+      "fidelity_issue_rates": {},
+      "judge": {
+        "judge_model": "anthropic/claude-opus-5.5",
+        "n_judged": 10,
+        "organization": {
+          "mean": 0.725,
+          "sd": 0.053,
+          "min": 0.625,
+          "max": 0.75
+        },
+        "completeness": {
+          "mean": 0.825,
+          "sd": 0.073,
+          "min": 0.667,
+          "max": 0.917
+        },
+        "faithful_rate": 1.0,
+        "category_yes_rates": {
+          "org_title": 1.0,
+          "org_clinical_information": 0.8,
+          "org_technique": 0.0,
+          "org_comparison": 1.0,
+          "org_findings": 1.0,
+          "org_impression": 1.0,
+          "org_recommendation": 0.0,
+          "org_order": 1.0,
+          "comp_age_sex": 0.0,
+          "comp_smoking": 0.3,
+          "comp_indication": 0.8,
+          "comp_comparison_status": 1.0,
+          "comp_size": 1.0,
+          "comp_attenuation": 1.0,
+          "comp_number": 1.0,
+          "comp_location": 1.0,
+          "comp_margins": 1.0,
+          "comp_risk_category": 0.8,
+          "comp_followup_correct": 1.0,
+          "comp_guideline_cited": 1.0,
+          "fid_other_findings": 0.0,
+          "fid_global_normal": 0.0,
+          "fid_nodule_details": 0.0,
+          "fid_technique": 0.0,
+          "fid_clinical_history": 0.0,
+          "fid_altered_facts": 0.0,
+          "fid_wrong_guideline": 0.0,
+          "fid_unsupported_recommendation": 0.0,
+          "info_states_assumptions": 0.1,
+          "info_uses_placeholders": 0.0,
+          "info_flags_missing_information": 0.0
+        },
+        "agreement_with_regex": {
+          "fidelity_pass": 1.0,
+          "org_title": 1.0,
+          "org_clinical_information": 1.0,
+          "org_technique": 1.0,
+          "org_comparison": 1.0,
+          "org_findings": 1.0,
+          "org_impression": 1.0,
+          "org_recommendation": 1.0,
+          "org_order": 0.0
+        }
+      }
+    },
+    "anthropic": {
+      "label": "Claude Opus 5.5",
+      "model": "anthropic/claude-opus-5.5",
+      "effort": "medium",
+      "n_scored": 10,
+      "n_errors": 0,
+      "organization": {
+        "mean": 0.9,
+        "sd": 0.129,
+        "min": 0.75,
+        "max": 1.0
+      },
+      "completeness": {
+        "mean": 0.992,
+        "sd": 0.026,
+        "min": 0.917,
+        "max": 1.0
+      },
+      "fidelity": {
+        "mean": 0.0,
+        "sd": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "fully_organized_rate": 0.6,
+      "faithful_rate": 0.0,
+      "assumed_technique_rate": 1.0,
+      "asked_questions_rate": 0.0,
+      "placeholders_rate": 1.0,
+      "completeness_item_rates": {
+        "age": 1.0,
+        "sex": 0.9,
+        "smoking_history": 1.0,
+        "indication": 1.0,
+        "size": 1.0,
+        "attenuation": 1.0,
+        "number": 1.0,
+        "location": 1.0,
+        "margins": 1.0,
+        "comparison": 1.0,
+        "followup_interval": 1.0,
+        "guideline_named": 1.0
+      },
+      "fidelity_issue_rates": {
+        "invented_other_findings.lung_parenchyma_other": 1.0,
+        "invented_nodule_details.calcification": 0.9,
+        "invented_nodule_details.morphology": 0.9,
+        "invented_nodule_details.fat": 0.8,
+        "invented_nodule_details.measurement_detail": 0.7,
+        "invented_other_findings.airways": 0.6,
+        "altered_facts.screening_guideline": 0.4,
+        "invented_other_findings.lymph_nodes": 0.3,
+        "invented_other_findings.upper_abdomen_thyroid": 0.3,
+        "invented_other_findings.pleura": 0.2,
+        "invented_other_findings.heart_vessels": 0.1,
+        "invented_other_findings.bones_chest_wall": 0.1
+      },
+      "judge": {
+        "judge_model": "anthropic/claude-opus-5.5",
+        "n_judged": 10,
+        "organization": {
+          "mean": 0.925,
+          "sd": 0.087,
+          "min": 0.75,
+          "max": 1.0
+        },
+        "completeness": {
+          "mean": 0.933,
+          "sd": 0.035,
+          "min": 0.917,
+          "max": 1.0
+        },
+        "faithful_rate": 0.0,
+        "category_yes_rates": {
+          "org_title": 1.0,
+          "org_clinical_information": 1.0,
+          "org_technique": 1.0,
+          "org_comparison": 1.0,
+          "org_findings": 1.0,
+          "org_impression": 1.0,
+          "org_recommendation": 0.5,
+          "org_order": 0.9,
+          "comp_age_sex": 1.0,
+          "comp_smoking": 1.0,
+          "comp_indication": 1.0,
+          "comp_comparison_status": 1.0,
+          "comp_size": 1.0,
+          "comp_attenuation": 1.0,
+          "comp_number": 1.0,
+          "comp_location": 1.0,
+          "comp_margins": 1.0,
+          "comp_risk_category": 0.2,
+          "comp_followup_correct": 1.0,
+          "comp_guideline_cited": 1.0,
+          "fid_other_findings": 0.8,
+          "fid_global_normal": 0.0,
+          "fid_nodule_details": 0.9,
+          "fid_technique": 0.9,
+          "fid_clinical_history": 0.1,
+          "fid_altered_facts": 0.0,
+          "fid_wrong_guideline": 0.0,
+          "fid_unsupported_recommendation": 0.0,
+          "info_states_assumptions": 0.1,
+          "info_uses_placeholders": 1.0,
+          "info_flags_missing_information": 1.0
+        },
+        "agreement_with_regex": {
+          "fidelity_pass": 1.0,
+          "org_title": 1.0,
+          "org_clinical_information": 1.0,
+          "org_technique": 1.0,
+          "org_comparison": 1.0,
+          "org_findings": 1.0,
+          "org_impression": 1.0,
+          "org_recommendation": 0.9,
+          "org_order": 0.5
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GPT-6.1 Sol Reports</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --ink: #1d2733; --muted: #66717d; --line: #dde2e7;
+    --bad-bg: #fde4e4; --bad: #a3221a; --ph-bg: #fdf0d8; --ph: #8a4b00;
+    --ok-bg: #e2f4ea; --ok: #0b6e44; --accent: #5b3fd1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14171b; --card: #1d2228; --ink: #e6e9ed; --muted: #9aa4ae; --line: #323a43;
+      --bad-bg: #4a1f1f; --bad: #ffb4ab; --ph-bg: #45351a; --ph: #f5c77a;
+      --ok-bg: #18382a; --ok: #8fe0b6; --accent: #b4a3ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 -apple-system, "Helvetica Neue", Arial, sans-serif; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 16px 60px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 16px; }
+  .prompt { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-style: italic; }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 14px 0; font-size: 13.5px; color: var(--muted); }
+  .summary { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin: 16px 0; }
+  .stats { display: flex; flex-wrap: wrap; gap: 28px; margin-bottom: 8px; }
+  .stats div { color: var(--muted); font-size: 13px; }
+  .stats span { display: block; font-size: 28px; font-weight: 700; color: var(--ink); }
+  .summary h3 { font-size: 14px; margin: 0 0 10px; }
+  .panels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .panel { border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .ph-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .ph-title { font-weight: 700; font-size: 15px; }
+  .ph-value { font-size: 26px; font-weight: 700; margin-left: auto; }
+  .ph-unit { font-size: 12px; color: var(--muted); }
+  .ph-sub { font-size: 12px; color: var(--muted); margin: 2px 0 8px; }
+  @media (max-width: 760px) { .panels { grid-template-columns: 1fr; } }
+  .freq { list-style: none; padding: 0; margin: 0; font-size: 14px; }
+  .freq li { position: relative; isolation: isolate; padding: 4px 8px; margin: 3px 0; border-radius: 6px; overflow: hidden; }
+  .freq .bar { position: absolute; inset: 0 auto 0 0; width: var(--w); background: var(--bad-bg); z-index: -1; }
+  .freq b { margin-right: 6px; }
+  nav { position: sticky; top: 0; background: var(--bg); padding: 8px 0; display: flex; flex-wrap: wrap; gap: 6px; z-index: 5; }
+  nav a { text-decoration: none; color: var(--ink); border: 1px solid var(--line); background: var(--card); border-radius: 6px; padding: 2px 9px; font-size: 13px; }
+  nav a.nav-no { border-color: var(--bad); color: var(--bad); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin: 16px 0; overflow: hidden; }
+  .card header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .card h2 { font-size: 18px; margin: 0; }
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill { font-size: 12.5px; font-weight: 600; border: 1px solid var(--line); border-radius: 99px; padding: 1px 9px; }
+  .pill.ok { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
+  .pill.no { background: var(--bad-bg); color: var(--bad); border-color: transparent; }
+  .meta { margin-left: auto; color: var(--muted); font-size: 12.5px; }
+  .cols { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+  .report { padding: 14px 18px; font-family: Georgia, "Times New Roman", serif; font-size: 15px; border-right: 1px solid var(--line); }
+  .report h3, .report h4, .report h5, .report h6 { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; margin: 12px 0 4px; font-size: 15px; }
+  .report p { margin: 4px 0; }
+  .report ul, .report ol { margin: 4px 0; padding-left: 22px; }
+  .report hr { border: none; border-top: 1px solid var(--line); margin: 10px 0; }
+  mark { border-radius: 3px; padding: 0 2px; cursor: help; }
+  mark.bad { background: var(--bad-bg); color: var(--bad); box-shadow: inset 0 -2px 0 var(--bad); }
+  mark.ph { background: var(--ph-bg); color: var(--ph); }
+  aside { padding: 14px 16px; font-size: 14px; }
+  aside h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 0 0 8px; }
+  .issues { list-style: none; padding: 0; margin: 0; }
+  .issues li { padding: 7px 0; border-top: 1px solid var(--line); }
+  .issues li:first-child { border-top: none; }
+  .issues q { font-family: Georgia, serif; color: var(--muted); }
+  .tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: 1px 6px; border-radius: 4px; }
+  .fidelity .tag { background: var(--bad-bg); color: var(--bad); }
+  .completeness .tag { background: var(--ph-bg); color: var(--ph); }
+  .organization .tag { background: var(--line); color: var(--ink); }
+  .muted { color: var(--muted); }
+  .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 5px; }
+  @media (max-width: 760px) {
+    .cols { grid-template-columns: 1fr; }
+    .report { border-right: none; border-bottom: 1px solid var(--line); }
+    .meta { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>GPT-6.1 Sol: base-prompt reports</h1>
+  <p class="sub">10 reports from the same prompt. Judged by anthropic/claude-opus-5.5, blinded to the source model.</p>
+  <div class="prompt">“70-year-old man, never smoked. Chest CT for chronic cough. Single 7 mm solid nodule, right lower lobe, smooth margins. No prior CT. Write the report.”</div>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--bad-bg);box-shadow:inset 0 -2px 0 var(--bad)"></span>Flagged by the judge as not supplied or changed (hover for the reason)</span>
+    <span><span class="swatch" style="background:var(--ph-bg)"></span>Placeholder for the radiologist</span>
+  </div>
+  
+<div class="summary">
+  <h3>Judge results across 10 reports</h3>
+  <div class="panels">
+    <div class="panel organization">
+      <div class="ph-head"><span class="ph-title">Organization</span><span class="ph-value">0.72</span><span class="ph-unit">mean score</span></div>
+      <div class="ph-sub">Top 3 of 8 rubric items, by how often they failed</div>
+      <ul class="freq"><li><span class="bar" style="--w:100%"></span><b>10/10</b> No technique section</li><li><span class="bar" style="--w:100%"></span><b>10/10</b> No recommendation section</li><li><span class="bar" style="--w:20%"></span><b>2/10</b> No clinical information section</li></ul>
+    </div>
+    <div class="panel completeness">
+      <div class="ph-head"><span class="ph-title">Completeness</span><span class="ph-value">0.82</span><span class="ph-unit">mean score</span></div>
+      <div class="ph-sub">Top 3 of 12 rubric items, by how often they failed</div>
+      <ul class="freq"><li><span class="bar" style="--w:100%"></span><b>10/10</b> Age or sex missing</li><li><span class="bar" style="--w:70%"></span><b>7/10</b> Smoking history missing</li><li><span class="bar" style="--w:20%"></span><b>2/10</b> Indication missing</li></ul>
+    </div>
+    <div class="panel fidelity">
+      <div class="ph-head"><span class="ph-title">Fidelity</span><span class="ph-value">100%</span><span class="ph-unit">faithful reports</span></div>
+      <div class="ph-sub">Top 3 of 8 rubric items, by how often they failed</div>
+      <ul class="freq"><li><span class="bar" style="--w:0%"></span><b>0/10</b> Finding outside the nodule (not supplied)</li><li><span class="bar" style="--w:0%"></span><b>0/10</b> Rest-of-study-is-normal statement (not supplied)</li><li><span class="bar" style="--w:0%"></span><b>0/10</b> Nodule detail not supplied</li></ul>
+    </div>
+  </div>
+</div>
+  <nav><a href="#run-0" class="">0</a><a href="#run-1" class="">1</a><a href="#run-2" class="">2</a><a href="#run-3" class="">3</a><a href="#run-4" class="">4</a><a href="#run-5" class="">5</a><a href="#run-6" class="">6</a><a href="#run-7" class="">7</a><a href="#run-8" class="">8</a><a href="#run-9" class="">9</a></nav>
+  
+<section class="card" id="run-0">
+  <header><h2>Run 0</h2><div class="pills"><span class="pill">Organization 0.75</span><span class="pill">Completeness 0.83</span><span class="pill ok">Faithful</span></div><div class="meta">251 output tokens · 60 words</div></header>
+  <div class="cols">
+    <article class="report"><p><strong>CT CHEST</strong></p>
+<p><strong>Indication:</strong> Chronic cough.</p>
+<p><strong>Comparison:</strong> No prior CT available.</p>
+<p><strong>Findings:</strong>  </p>
+<p>Solitary 7 mm solid pulmonary nodule in the right lower lobe with smooth margins.</p>
+<p><strong>Impression:</strong>  </p>
+<p>7 mm solid right lower lobe pulmonary nodule. Recommend follow-up low-dose noncontrast chest CT in 6–12 months. If stable, consider an additional CT at 18–24 months, per Fleischner Society guidelines for a low-risk patient.</p></article>
+    <aside><h3>Judge findings</h3><ul class='issues'><li class="completeness"><span class="tag">Missing</span> <b>Age or sex missing</b><div><span class="muted">(absent from report)</span></div></li><li class="completeness"><span class="tag">Missing</span> <b>Smoking history missing</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No technique section</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No recommendation section</b><div><span class="muted">(absent from report)</span></div></li></ul></aside>
+  </div>
+</section>
+<section class="card" id="run-1">
+  <header><h2>Run 1</h2><div class="pills"><span class="pill">Organization 0.75</span><span class="pill">Completeness 0.92</span><span class="pill ok">Faithful</span></div><div class="meta">231 output tokens · 60 words</div></header>
+  <div class="cols">
+    <article class="report"><p><strong>CT CHEST</strong></p>
+<p><strong>Indication:</strong> Chronic cough. Never smoker.</p>
+<p><strong>Comparison:</strong> None available.</p>
+<p><strong>Findings:</strong>  </p>
+<p>Solitary 7 mm solid pulmonary nodule in the right lower lobe with smooth margins.</p>
+<p><strong>Impression:</strong>  </p>
+<p>7 mm solid right lower lobe pulmonary nodule. Recommend follow-up low-dose noncontrast chest CT in 6–12 months. If stable, consider an additional CT at 18–24 months, per Fleischner Society guidelines for a low-risk patient.</p></article>
+    <aside><h3>Judge findings</h3><ul class='issues'><li class="completeness"><span class="tag">Missing</span> <b>Age or sex missing</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No technique section</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No recommendation section</b><div><span class="muted">(absent from report)</span></div></li></ul></aside>
+  </div>
+</section>
+<section class="card" id="run-2">
+  <header><h2>Run 2</h2><div class="pills"><span class="pill">Organization 0.75</span><span class="pill">Completeness 0.83</span><span class="pill ok">Faithful</span></div><div class="meta">226 output tokens · 57 words</div></header>
+  <div class="cols">
+    <article class="report"><p><strong>CT CHEST</strong></p>
+<p><strong>Indication:</strong> Chronic cough. Never smoker.  </p>
+<p><strong>Comparison:</strong> None available.</p>
+<p><strong>Findings:</strong>  </p>
+<p>Solitary 7 mm solid pulmonary nodule in the right lower lobe with smooth margins.</p>
+<p><strong>Impression:</strong>  </p>
+<p>Indeterminate 7 mm right lower lobe solid pulmonary nodule. Recommend follow-up low-dose noncontrast chest CT in 6–12 months. If stable, consider an additional CT at 18–24 months, per Fleischner Society guidelines.</p></article>
+    <aside><h3>Judge findings</h3><ul class='issues'><li class="completeness"><span class="tag">Missing</span> <b>Age or sex missing</b><div><span class="muted">(absent from report)</span></div></li><li class="completeness"><span class="tag">Missing</span> <b>Risk category not stated</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No technique section</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No recommendation section</b><div><span class="muted">(absent from report)</span></div></li></ul></aside>
+  </div>
+</section>
+<section class="card" id="run-3">
+  <header><h2>Run 3</h2><div class="pills"><span class="pill">Organization 0.62</span><span class="pill">Completeness 0.67</span><span class="pill ok">Faithful</span></div><div class="meta">241 output tokens · 55 words</div></header>
+  <div class="cols">
+    <article class="report"><p><strong>CT CHEST</strong></p>
+<p><strong>Comparison:</strong> No prior chest CT available.</p>
+<p><strong>Findings:</strong>  </p>
+<p>Solitary 7 mm solid pulmonary nodule in the right lower lobe with smooth margins.</p>
+<p><strong>Impression:</strong>  </p>
+<p>Indeterminate 7 mm right lower lobe solid pulmonary nodule. Recommend follow-up low-dose noncontrast chest CT in 6–12 months. If stable, consider an additional CT at 18–24 months, per Fleischner Society guidelines.</p></article>
+    <aside><h3>Judge findings</h3><ul class='issues'><li class="completeness"><span class="tag">Missing</span> <b>Age or sex missing</b><div><span class="muted">(absent from report)</span></div></li><li class="completeness"><span class="tag">Missing</span> <b>Smoking history missing</b><div><span class="muted">(absent from report)</span></div></li><li class="completeness"><span class="tag">Missing</span> <b>Indication missing</b><div><span class="muted">(absent from report)</span></div></li><li class="completeness"><span class="tag">Missing</span> <b>Risk category not stated</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No clinical information section</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No technique section</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No recommendation section</b><div><span class="muted">(absent from report)</span></div></li></ul></aside>
+  </div>
+</section>
+<section class="card" id="run-4">
+  <header><h2>Run 4</h2><div class="pills"><span class="pill">Organization 0.75</span><span class="pill">Completeness 0.83</span><span class="pill ok">Faithful</span></div><div class="meta">262 output tokens · 60 words</div></header>
+  <div class="cols">
+    <article class="report"><p><strong>CT CHEST</strong></p>
+<p><strong>Indication:</strong> Chronic cough.</p>
+<p><strong>Comparison:</strong> No prior CT available.</p>
+<p><strong>Findings:</strong>  </p>
+<p>Solitary 7 mm solid pulmonary nodule in the right lower lobe with smooth margins.</p>
+<p><strong>Impression:</strong>  </p>
+<p>7 mm solid right lower lobe pulmonary nodule. Recommend follow-up low-dose noncontrast chest CT in 6–12 months. If stable, consider an additional CT at 18–24 months, per Fleischner Society guidelines for a low-risk patient.</p></article>
+    <aside><h3>Judge findings</h3><ul class='issues'><li class="completeness"><span class="tag">Missing</span> <b>Age or sex missing</b><div><span class="muted">(absent from report)</span></div></li><li class="completeness"><span class="tag">Missing</span> <b>Smoking history missing</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No technique section</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No recommendation section</b><div><span class="muted">(absent from report)</span></div></li></ul></aside>
+  </div>
+</section>
+<section class="card" id="run-5">
+  <header><h2>Run 5</h2><div class="pills"><span class="pill">Organization 0.75</span><span class="pill">Completeness 0.83</span><span class="pill ok">Faithful</span></div><div class="meta">228 output tokens · 59 words</div></header>
+  <div class="cols">
+    <article class="report"><p><strong>CT CHEST</strong></p>
+<p><strong>Indication:</strong> Chronic cough.</p>
+<p><strong>Comparison:</strong> None available.</p>
+<p><strong>Findings:</strong>  </p>
+<p>Solitary 7 mm solid pulmonary nodule in the right lower lobe with smooth margins.</p>
+<p><strong>Impression:</strong>  </p>
+<p>Indeterminate 7 mm solid right lower lobe pulmonary nodule. Recommend follow-up chest CT without contrast in 6–12 months. If stable, consider an additional CT at 18–24 months, per Fleischner Society guidelines for a low-risk patient.</p></article>
+    <aside><h3>Judge findings</h3><ul class='issues'><li class="completeness"><span class="tag">Missing</span> <b>Age or sex missing</b><div><span class="muted">(absent from report)</span></div></li><li class="completeness"><span class="tag">Missing</span> <b>Smoking history missing</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No technique section</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No recommendation section</b><div><span class="muted">(absent from report)</span></div></li></ul></aside>
+  </div>
+</section>
+<section class="card" id="run-6">
+  <header><h2>Run 6</h2><div class="pills"><span class="pill">Organization 0.75</span><span class="pill">Completeness 0.92</span><span class="pill ok">Faithful</span></div><div class="meta">248 output tokens · 62 words</div></header>
+  <div class="cols">
+    <article class="report"><p><strong>CT CHEST</strong></p>
+<p><strong>Indication:</strong> Chronic cough. Never-smoker.</p>
+<p><strong>Comparison:</strong> No prior CT available.</p>
+<p><strong>Findings:</strong>  </p>
+<p>Solitary 7 mm solid pulmonary nodule in the right lower lobe with smooth margins.</p>
+<p><strong>Impression:</strong>  </p>
+<p>Indeterminate 7 mm solid right lower lobe pulmonary nodule. Recommend follow-up low-dose noncontrast chest CT in 6–12 months. If stable, consider an additional CT at 18–24 months, per Fleischner Society guidelines for a low-risk patient.</p></article>
+    <aside><h3>Judge findings</h3><ul class='issues'><li class="completeness"><span class="tag">Missing</span> <b>Age or sex missing</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No technique section</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No recommendation section</b><div><span class="muted">(absent from report)</span></div></li></ul></aside>
+  </div>
+</section>
+<section class="card" id="run-7">
+  <header><h2>Run 7</h2><div class="pills"><span class="pill">Organization 0.62</span><span class="pill">Completeness 0.75</span><span class="pill ok">Faithful</span></div><div class="meta">224 output tokens · 55 words</div></header>
+  <div class="cols">
+    <article class="report"><p><strong>CT CHEST</strong></p>
+<p><strong>Comparison:</strong> No prior CT available.</p>
+<p><strong>Findings:</strong>  </p>
+<p>Solitary 7 mm solid pulmonary nodule in the right lower lobe with smooth margins.</p>
+<p><strong>Impression:</strong>  </p>
+<p>7 mm solid right lower lobe pulmonary nodule. Recommend follow-up chest CT in <strong>6–12 months</strong>; if stable, consider an additional CT at <strong>18–24 months</strong>, per Fleischner Society guidelines for a low-risk patient.</p></article>
+    <aside><h3>Judge findings</h3><ul class='issues'><li class="completeness"><span class="tag">Missing</span> <b>Age or sex missing</b><div><span class="muted">(absent from report)</span></div></li><li class="completeness"><span class="tag">Missing</span> <b>Smoking history missing</b><div><span class="muted">(absent from report)</span></div></li><li class="completeness"><span class="tag">Missing</span> <b>Indication missing</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No clinical information section</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No technique section</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No recommendation section</b><div><span class="muted">(absent from report)</span></div></li></ul></aside>
+  </div>
+</section>
+<section class="card" id="run-8">
+  <header><h2>Run 8</h2><div class="pills"><span class="pill">Organization 0.75</span><span class="pill">Completeness 0.83</span><span class="pill ok">Faithful</span></div><div class="meta">220 output tokens · 64 words</div></header>
+  <div class="cols">
+    <article class="report"><p><strong>CT CHEST</strong></p>
+<p><strong>Indication:</strong> Chronic cough.</p>
+<p><strong>Comparison:</strong> None available.</p>
+<p><strong>Findings:</strong>  </p>
+<p>Solitary 7 mm solid pulmonary nodule in the right lower lobe with smooth margins.</p>
+<p><strong>Impression:</strong>  </p>
+<p>7 mm solid right lower lobe pulmonary nodule. Recommend follow-up chest CT in 6–12 months; if stable, consider an additional CT at 18–24 months, per Fleischner Society guidelines for a low-risk patient. These recommendations assume no known malignancy or immunosuppression.</p></article>
+    <aside><h3>Judge findings</h3><ul class='issues'><li class="completeness"><span class="tag">Missing</span> <b>Age or sex missing</b><div><span class="muted">(absent from report)</span></div></li><li class="completeness"><span class="tag">Missing</span> <b>Smoking history missing</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No technique section</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No recommendation section</b><div><span class="muted">(absent from report)</span></div></li></ul></aside>
+  </div>
+</section>
+<section class="card" id="run-9">
+  <header><h2>Run 9</h2><div class="pills"><span class="pill">Organization 0.75</span><span class="pill">Completeness 0.83</span><span class="pill ok">Faithful</span></div><div class="meta">276 output tokens · 61 words</div></header>
+  <div class="cols">
+    <article class="report"><p><strong>CT CHEST</strong></p>
+<p><strong>Indication:</strong> Chronic cough.</p>
+<p><strong>Comparison:</strong> No prior CT available.</p>
+<p><strong>Findings:</strong>  </p>
+<p>Solitary 7 mm solid pulmonary nodule in the right lower lobe with smooth margins.</p>
+<p><strong>Impression:</strong>  </p>
+<p>Indeterminate 7 mm right lower lobe solid pulmonary nodule. Recommend follow-up low-dose noncontrast chest CT in 6–12 months. If stable, consider additional follow-up CT at 18–24 months, per Fleischner Society guidelines for a low-risk patient.</p></article>
+    <aside><h3>Judge findings</h3><ul class='issues'><li class="completeness"><span class="tag">Missing</span> <b>Age or sex missing</b><div><span class="muted">(absent from report)</span></div></li><li class="completeness"><span class="tag">Missing</span> <b>Smoking history missing</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No technique section</b><div><span class="muted">(absent from report)</span></div></li><li class="organization"><span class="tag">Structure</span> <b>No recommendation section</b><div><span class="muted">(absent from report)</span></div></li></ul></aside>
+  </div>
+</section>
+</div>
+</body>
+</html>

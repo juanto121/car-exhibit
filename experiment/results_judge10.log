@@ -1,0 +1,53 @@
+Judging GPT-6.1 Sol reports, pass 1, with anthropic/claude-opus-5.5 (effort=medium, batch): 0 done, 10 to judge
+  submitted batch batch-1794877763-aMNeDTbbf7sWM2eFdg05 (10 requests)
+  status check returned 404; retrying in 60s
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:10:24+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:11:25+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:12:26+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:13:27+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:14:28+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:15:30+00:00)
+  completed: 0/10 done, 10 failed (2026-11-17T01:16:31+00:00)
+  batch completed, billed $0.0000
+Judging Claude Opus 5.5 reports, pass 1, with anthropic/claude-opus-5.5 (effort=medium, batch): 0 done, 10 to judge
+  submitted batch batch-1794878191-r1gqL9lAKE8jzNGZlBaN (10 requests)
+  status check returned 404; retrying in 60s
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:17:33+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:18:34+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:19:34+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:20:35+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:21:36+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:22:36+00:00)
+  completed: 0/10 done, 10 failed (2026-11-17T01:23:37+00:00)
+  batch completed, billed $0.0000
+Judging GPT-6.1 Sol reports, pass 1, with anthropic/claude-opus-5.5 (effort=medium, batch): 0 done, 10 to judge
+  submitted batch batch-1794878665-juqI3uvkihxJYuYOMwfn (10 requests)
+  status check returned 404; retrying in 60s
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:25:27+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:26:28+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:27:29+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:28:30+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:29:30+00:00)
+  in_progress: 0/10 done, 0 failed (2026-11-17T01:30:31+00:00)
+Judging GPT-6.1 Sol reports, pass 1, with anthropic/claude-opus-5.5 (effort=medium, sync): 0 done, 10 to judge
+  [1/10] run 4: ok
+  [2/10] run 2: ok
+  [3/10] run 0: ok
+  [4/10] run 3: ok
+  [5/10] run 1: ok
+  [6/10] run 5: ok
+  [7/10] run 6: ok
+  [8/10] run 7: ok
+  [9/10] run 8: ok
+  [10/10] run 9: ok
+Judging Claude Opus 5.5 reports, pass 1, with anthropic/claude-opus-5.5 (effort=medium, sync): 0 done, 10 to judge
+  [1/10] run 1: ok
+  [2/10] run 0: ok
+  [3/10] run 3: ok
+  [4/10] run 5: ok
+  [5/10] run 2: ok
+  [6/10] run 8: ok
+  [7/10] run 4: ok
+  [8/10] run 9: ok
+  [9/10] run 7: ok
+  [10/10] run 6: ok

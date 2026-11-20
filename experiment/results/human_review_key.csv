@@ -1,0 +1,21 @@
+report_id,provider,model,run_index
+R01,openai,GPT-6.1 Sol,9
+R02,anthropic,Claude Opus 5.5,1
+R03,anthropic,Claude Opus 5.5,8
+R04,openai,GPT-6.1 Sol,6
+R05,anthropic,Claude Opus 5.5,4
+R06,openai,GPT-6.1 Sol,8
+R07,anthropic,Claude Opus 5.5,7
+R08,anthropic,Claude Opus 5.5,9
+R09,anthropic,Claude Opus 5.5,5
+R10,openai,GPT-6.1 Sol,1
+R11,openai,GPT-6.1 Sol,3
+R12,openai,GPT-6.1 Sol,7
+R13,openai,GPT-6.1 Sol,5
+R14,anthropic,Claude Opus 5.5,6
+R15,openai,GPT-6.1 Sol,2
+R16,openai,GPT-6.1 Sol,0
+R17,anthropic,Claude Opus 5.5,0
+R18,anthropic,Claude Opus 5.5,2
+R19,openai,GPT-6.1 Sol,4
+R20,anthropic,Claude Opus 5.5,3

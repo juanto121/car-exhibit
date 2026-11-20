@@ -1,0 +1,68 @@
+{
+  "run:openai": {
+    "id": "batch-1794876781-XbkwWNiuiPPFJq1ULEik",
+    "model": "openai/gpt-6.1-sol",
+    "route": "openai",
+    "n_requests": 10,
+    "submitted": "2026-11-17T00:53:02+00:00",
+    "collected": true,
+    "status": "completed",
+    "provider": "OpenAI",
+    "model_resolved": "openai/gpt-6.1-sol-20260929",
+    "usage": {
+      "prompt_tokens": 440,
+      "completion_tokens": 2407,
+      "total_tokens": 2847,
+      "cost": 0.012475,
+      "is_byok": false
+    },
+    "finalized": "2026-11-17T01:00:31+00:00"
+  },
+  "run:anthropic": {
+    "id": "batch-1794877231-Evz7WYenrlW0C77n3jny",
+    "model": "anthropic/claude-opus-5.5",
+    "route": "anthropic",
+    "n_requests": 10,
+    "submitted": "2026-11-17T01:00:32+00:00",
+    "collected": true,
+    "status": "completed",
+    "provider": "Anthropic",
+    "model_resolved": "anthropic/claude-opus-5.5-20260921",
+    "usage": {
+      "prompt_tokens": 690,
+      "completion_tokens": 16914,
+      "total_tokens": 17604,
+      "cost": 0.17052,
+      "is_byok": false
+    },
+    "finalized": "2026-11-17T01:08:37+00:00"
+  },
+  "judge:pass1:openai": {
+    "id": "batch-1794878665-juqI3uvkihxJYuYOMwfn",
+    "model": "anthropic/claude-opus-5.5",
+    "route": "anthropic",
+    "n_requests": 10,
+    "submitted": "2026-11-17T01:24:26+00:00",
+    "collected": true,
+    "status": "abandoned (switched to sync judging; OpenRouter cannot cancel batches)"
+  },
+  "judge:pass1:anthropic": {
+    "id": "batch-1794878191-r1gqL9lAKE8jzNGZlBaN",
+    "model": "anthropic/claude-opus-5.5",
+    "route": "anthropic",
+    "n_requests": 10,
+    "submitted": "2026-11-17T01:16:32+00:00",
+    "collected": true,
+    "status": "completed",
+    "provider": "Anthropic",
+    "model_resolved": "anthropic/claude-opus-5.5-20260921",
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "cost": 0,
+      "is_byok": false
+    },
+    "finalized": "2026-11-17T01:23:37+00:00"
+  }
+}

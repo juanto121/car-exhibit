@@ -1,0 +1,44 @@
+{
+  "created": "2026-11-17T00:53:24+00:00",
+  "prompt": "70-year-old man, never smoked. Chest CT for chronic cough. Single 7 mm solid nodule, right lower lobe, smooth margins. No prior CT. Write the report.",
+  "prompt_sha256": "37c8e43806ef3a01955e8323f619a3edf780993fbed0311545e23b89bfa5f7d7",
+  "n_per_model": 10,
+  "max_output_tokens": 16000,
+  "models": {
+    "openai": {
+      "provider": "openai",
+      "label": "GPT-6.1 Sol",
+      "model": "openai/gpt-6.1-sol",
+      "effort": "medium",
+      "route": "openai",
+      "supports_seed": true,
+      "price_in": 1.0,
+      "price_out": 5.0
+    },
+    "anthropic": {
+      "provider": "anthropic",
+      "label": "Claude Opus 5.5",
+      "model": "anthropic/claude-opus-5.5",
+      "effort": "medium",
+      "route": "anthropic",
+      "supports_seed": false,
+      "price_in": 2.0,
+      "price_out": 10.0
+    }
+  },
+  "python": "3.14.2 (main, Jan 27 2026, 23:32:07) [Clang 21.1.4 ]",
+  "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+  "packages": {
+    "openai": "3.52.0"
+  },
+  "api": "https://openrouter.ai/api/v1",
+  "rubric_sha256": "a4cc9fdd6fbcaa4b87f447450b57910ebb14882da662a12dd39ffbef9700def5",
+  "judge": {
+    "model": "anthropic/claude-opus-5.5",
+    "effort": "medium",
+    "route": "anthropic",
+    "price_in": 2.0,
+    "price_out": 10.0
+  },
+  "judge_rubric_sha256": "998d0d8e4c29a93a6a42d4c4f27357fbe6919fde201b2915de23b0b25acb4625"
+}

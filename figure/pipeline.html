@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Framework Pipeline</title>
+<!--
+  Editing guide
+  - Each step is one <section class="col">. Text is plain HTML: edit it in place.
+  - The LLM input is a stack of .layer blocks, read top to bottom. The user prompt is always the last layer.
+    Mark the layer added in that step with class "new".
+  - Highlights in outputs: <span class="err">…</span> (error) and <span class="ok">…</span> (correct).
+  - Re-render the PNG with: ./render.sh pipeline
+-->
+<style>
+  :root {
+    --ink: #1d2733; --muted: #66717d; --line: #d6dbe1; --soft: #f4f6f8;
+    --user: #4b5563; --prompt: #2f6fde; --context: #0d8f63; --tools: #7a3be0;
+    --err-bg: #fde7e7; --err: #b42318; --ok-bg: #e3f5ec; --ok: #0b7a4b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .fig { width: 1800px; padding: 34px 40px 30px; }
+  h1 { font-size: 30px; margin: 0 0 6px; letter-spacing: -0.3px; }
+  .sub { font-size: 17px; color: var(--muted); margin: 0 0 26px; }
+
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: auto 1fr auto auto; column-gap: 46px; }
+  .col { display: grid; grid-row: span 4; grid-template-rows: subgrid; position: relative; }
+  .col + .col::before {            /* pipeline arrow between columns */
+    content: "➜"; position: absolute; left: -38px; top: 6px; font-size: 30px; color: #b7bec7;
+  }
+
+  /* step header */
+  .head { padding-bottom: 14px; }
+  .step { font-size: 14px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); }
+  .head h2 { font-size: 26px; margin: 4px 0 4px; line-height: 1.15; }
+  .head p { margin: 0; font-size: 16px; color: var(--muted); line-height: 1.35; }
+  .c-prompt h2 { color: var(--prompt); }
+  .c-context h2 { color: var(--context); }
+  .c-tools h2 { color: var(--tools); }
+
+  /* LLM input stack */
+  .stack { display: flex; flex-direction: column; justify-content: flex-end; gap: 8px;
+           border: 2px dashed var(--line); border-radius: 12px; padding: 30px 10px 10px; position: relative; }
+  .stack::before { content: "LLM input · read top to bottom"; position: absolute; top: 8px; left: 12px;
+           font-size: 12px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; color: var(--muted); }
+  .layer { border-radius: 9px; padding: 10px 12px; font-size: 15px; line-height: 1.4; border: 1.5px solid; background: #fff; opacity: 0.55; }
+  .layer.new { opacity: 1; box-shadow: 0 0 0 3px rgba(0,0,0,0.04); border-width: 2.5px; }
+  .layer .t { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 5px; }
+  .layer .t .tag { margin-left: auto; font-size: 11px; color: #fff; padding: 2px 7px; border-radius: 99px; letter-spacing: 0.5px; }
+  .layer ul { margin: 0; padding-left: 18px; }
+  .l-user { border-color: var(--user); } .l-user .t { color: var(--user); }
+  .l-prompt { border-color: var(--prompt); } .l-prompt .t { color: var(--prompt); } .l-prompt .tag { background: var(--prompt); }
+  .l-context { border-color: var(--context); } .l-context .t { color: var(--context); } .l-context .tag { background: var(--context); }
+  .l-tools { border-color: var(--tools); } .l-tools .t { color: var(--tools); } .l-tools .tag { background: var(--tools); }
+  .quote { font-style: italic; }
+
+  /* icon rows inside layers */
+  .item { display: flex; gap: 10px; align-items: flex-start; margin-top: 7px; }
+  .item:first-of-type { margin-top: 2px; }
+  .item svg { flex: none; }
+  .item b { display: block; }
+  .item small { display: block; color: var(--muted); font-size: 13.5px; line-height: 1.35; }
+
+  /* calculator readout for tools */
+  .calc { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 13.5px; }
+  .calc .in, .calc .out { border: 1px solid var(--line); border-radius: 6px; padding: 4px 7px; background: var(--soft); }
+  .calc .out { background: #efe8fd; border-color: #cdb8f5; color: var(--tools); font-weight: 700; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13px; font-weight: 700; color: var(--tools); }
+
+  /* LLM node */
+  .llm { display: flex; flex-direction: column; align-items: center; padding: 10px 0; }
+  .llm .arrow { font-size: 22px; color: #b7bec7; line-height: 1; }
+  .llm .node { margin: 6px 0; background: var(--ink); color: #fff; font-weight: 700; font-size: 16px; padding: 8px 22px; border-radius: 99px; letter-spacing: 0.5px; }
+
+  /* output */
+  .out-box { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 0; background: var(--soft); display: flex; flex-direction: column; }
+  .checks { margin: auto -14px 0; padding: 10px 14px 11px; border-top: 1px solid var(--line); background: #fff; border-radius: 0 0 10px 10px;
+            display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; }
+  .checks { margin-top: auto; }
+  .verdict { margin-bottom: 12px; }
+  .checks .y { color: var(--ok); } .checks .n { color: var(--err); } .checks .p { color: #a15c00; }
+  .tech { display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: 0.3px; color: var(--prompt);
+          background: #e8f0fd; border: 1px solid #b9cff6; border-radius: 99px; padding: 0 7px; vertical-align: 1px; white-space: nowrap; }
+  .layer ul li { margin-bottom: 3px; }
+  .stats { margin: 0 -14px; padding: 10px 14px 12px; border-top: 1px solid var(--line); background: #fff; border-radius: 0 0 10px 10px; }
+  .stats-t { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .stats table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .stats th { font-size: 11.5px; color: var(--muted); font-weight: 700; text-align: right; padding: 2px 4px; }
+  .stats td { text-align: right; padding: 3px 4px; font-weight: 700; border-top: 1px solid var(--soft); }
+  .stats td:first-child, .stats th:first-child { text-align: left; font-weight: 600; }
+  .stats tr.cat td { font-weight: 800; border-top: 1.5px solid var(--line); padding-top: 6px; }
+  .stats tr:not(.cat) td:first-child { padding-left: 12px; font-weight: 500; color: var(--ink); font-size: 13px; }
+  .stats td.f0 { color: var(--muted); font-weight: 600; }
+  .stats td.f1 { color: #a15c00; }
+  .stats td.f2 { color: var(--err); }
+  .stats-n { margin-top: 6px; font-size: 12.5px; line-height: 1.35; color: var(--muted); }
+  .results { margin-top: 18px; border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px 14px; }
+  .results-t { font-size: 13px; font-weight: 700; letter-spacing: .3px; color: var(--muted); margin-bottom: 8px; }
+  .results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .results table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .results th { text-align: right; font-size: 12.5px; color: var(--muted); font-weight: 700; padding: 3px 4px; }
+  .results th:first-child { text-align: left; font-size: 16px; color: var(--ink); }
+  .results th span { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .results td { text-align: right; padding: 4px 4px; border-top: 1px solid var(--soft); font-weight: 700; }
+  .results td:first-child { text-align: left; font-weight: 500; }
+  .results tr.cat td { font-weight: 800; border-top: 1.5px solid var(--line); }
+  .results td.f0 { color: var(--muted); font-weight: 600; }
+  .results td.f1 { color: #a15c00; }
+  .results td.f2 { color: var(--err); }
+  .item.rag { border-top: 1px dashed var(--line); padding-top: 7px; }
+  .gap { background: #fdf1dc; color: #8a4b00; border-radius: 3px; padding: 0 2px; }
+  .report .same { color: var(--muted); font-style: italic; }
+  .ask { margin-top: 8px; border: 1.5px solid var(--prompt); border-radius: 8px; background: #fff; padding: 7px 10px; font-size: 13.5px; line-height: 1.35; }
+  .ask-t { font-size: 12px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--prompt); margin-bottom: 3px; }
+  .ask ul { margin: 0; padding-left: 17px; }
+  .out-box .lbl { font-size: 12px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .report { font-family: Georgia, "Times New Roman", serif; font-size: 15.5px; line-height: 1.45; }
+  .report p { margin: 0 0 5px; }
+  .sec { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.5px; }
+  .err { background: var(--err-bg); color: var(--err); border-radius: 3px; padding: 0 2px; }
+  .ok { background: var(--ok-bg); color: var(--ok); border-radius: 3px; padding: 0 2px; }
+  .verdict { margin-top: 8px; font-size: 14px; font-weight: 700; line-height: 1.35; }
+  .verdict .x { color: var(--err); } .verdict .v { color: var(--ok); } .verdict .w { color: #a15c00; }
+
+  footer { display: flex; gap: 24px; margin-top: 18px; font-size: 14px; color: var(--muted); }
+  footer .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+  footer .spacer { flex: 1; }
+</style>
+</head>
+<body>
+<!-- Icon library: reuse with <svg width=".." height=".."><use href="#i-name"/></svg> -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-pdf" viewBox="0 0 40 48">
+      <path d="M4 2h22l10 10v32a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#fff" stroke="#b42318" stroke-width="2.5"/>
+      <path d="M26 2v10h10" fill="none" stroke="#b42318" stroke-width="2.5"/>
+      <rect x="2" y="26" width="30" height="13" rx="2" fill="#b42318"/>
+      <text x="17" y="36.5" font-size="10" font-weight="700" fill="#fff" text-anchor="middle" font-family="Helvetica, Arial">PDF</text>
+    </symbol>
+    <symbol id="i-db" viewBox="0 0 40 48">
+      <g fill="#e3f5ec" stroke="#0d8f63" stroke-width="2.5">
+        <path d="M4 10v28c0 4 7 7 16 7s16-3 16-7V10"/>
+        <ellipse cx="20" cy="10" rx="16" ry="7"/>
+        <path d="M4 20c0 4 7 7 16 7s16-3 16-7M4 29c0 4 7 7 16 7s16-3 16-7" fill="none"/>
+      </g>
+    </symbol>
+    <symbol id="i-calc" viewBox="0 0 40 48">
+      <rect x="3" y="2" width="34" height="44" rx="5" fill="#f3eefe" stroke="#7a3be0" stroke-width="2.5"/>
+      <rect x="8" y="7" width="24" height="10" rx="2" fill="#7a3be0"/>
+      <g fill="#7a3be0">
+        <rect x="8" y="22" width="6" height="5" rx="1"/><rect x="17" y="22" width="6" height="5" rx="1"/><rect x="26" y="22" width="6" height="5" rx="1"/>
+        <rect x="8" y="30" width="6" height="5" rx="1"/><rect x="17" y="30" width="6" height="5" rx="1"/><rect x="26" y="30" width="6" height="5" rx="1"/>
+        <rect x="8" y="38" width="6" height="5" rx="1"/><rect x="17" y="38" width="6" height="5" rx="1"/><rect x="26" y="38" width="6" height="5" rx="1"/>
+      </g>
+    </symbol>
+    <symbol id="i-cal" viewBox="0 0 40 48">
+      <rect x="3" y="7" width="34" height="37" rx="4" fill="#fff" stroke="#7a3be0" stroke-width="2.5"/>
+      <rect x="3" y="7" width="34" height="10" rx="4" fill="#7a3be0"/>
+      <path d="M12 3v8M28 3v8" stroke="#7a3be0" stroke-width="3" stroke-linecap="round"/>
+      <g fill="#7a3be0"><rect x="9" y="22" width="5" height="5"/><rect x="18" y="22" width="5" height="5"/><rect x="27" y="22" width="5" height="5"/><rect x="9" y="31" width="5" height="5"/><rect x="18" y="31" width="5" height="5"/></g>
+    </symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24">
+      <path d="M4 12a8 8 0 0 1 13.7-5.6L20 8.7M20 4v4.7h-4.7M20 12a8 8 0 0 1-13.7 5.6L4 15.3M4 20v-4.7h4.7" fill="none" stroke="#7a3be0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24">
+      <rect x="4" y="10" width="16" height="11" rx="2" fill="none" stroke="#7a3be0" stroke-width="2.2"/>
+      <path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="#7a3be0" stroke-width="2.2"/>
+    </symbol>
+    <symbol id="i-chat" viewBox="0 0 40 48">
+      <path d="M5 8h30a3 3 0 0 1 3 3v20a3 3 0 0 1-3 3H18l-9 8v-8H5a3 3 0 0 1-3-3V11a3 3 0 0 1 3-3z" fill="#e3f5ec" stroke="#0d8f63" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M10 17h20M10 24h14" stroke="#0d8f63" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="fig">
+  <h1>Harness before you climb: the framework applied to an incidental pulmonary nodule</h1>
+  <p class="sub">The user prompt never changes. Each step adds a layer to what the LLM reads, and the report changes with it.</p>
+
+  <div class="grid">
+
+    <!-- BASE -->
+    <section class="col">
+      <div class="head">
+        <div class="step">Base</div>
+        <h2>User prompt only</h2>
+        <p>What most radiologists type today.</p>
+      </div>
+      <div class="stack">
+        <div class="layer l-user new">
+          <div class="t">User prompt</div>
+          <span class="quote">“70-year-old man, never smoked. Chest CT for chronic cough. Single 7 mm solid nodule, right lower lobe, smooth margins. No prior CT. Write the report.”</span>
+        </div>
+      </div>
+      <div class="llm"><div class="arrow">▼</div><div class="node">LLM</div><div class="arrow">▼</div></div>
+      <div class="out-box">
+        <div class="lbl">Report (abridged)</div>
+        <div class="report">
+          <p><span class="sec">FINDINGS</span> <span class="gap">Solitary 7 mm solid nodule, smooth margins, right lower lobe.</span></p>
+          <p><span class="sec">IMPRESSION</span> Solitary 7 mm solid nodule.</p>
+          <p><span class="sec">RECOMMENDATION</span> CT in 6–12 months, consider 18–24 months (Fleischner 2017).</p>
+        </div>
+        <div class="verdict"><span class="v">✓ Organized, nothing invented</span><br><span class="w">! Thin description; asks nothing; other findings not addressed</span></div>
+        <div class="checks"><span class="y">✓ Organization</span><span class="p">◐ Completeness</span><span class="y">✓ Fidelity</span></div>
+      </div>
+    </section>
+
+    <!-- STEP 1: PROMPTING -->
+    <section class="col c-prompt">
+      <div class="head">
+        <div class="step">Step 1</div>
+        <h2>Prompting</h2>
+        <p>Instructions placed <b>before</b> the user prompt.</p>
+      </div>
+      <div class="stack">
+        <div class="layer l-prompt new">
+          <div class="t">Instructions <span class="tag">NEW</span></div>
+          <ul>
+            <li>Write as a thoracic radiologist. <span class="tech">Role</span></li>
+            <li>Structured report: technique, findings, impression, recommendations. <span class="tech">Output format</span></li>
+            <li>Ask me if anything is missing. <span class="tech">Clarifying questions</span></li>
+          </ul>
+        </div>
+        <div class="layer l-user">
+          <div class="t">User prompt</div>
+          <span class="quote">“70-year-old man, never smoked. Chest CT for chronic cough…”</span>
+        </div>
+      </div>
+      <div class="llm"><div class="arrow">▼</div><div class="node">LLM</div><div class="arrow">▼</div></div>
+      <div class="out-box">
+        <div class="lbl">Report (abridged)</div>
+        <div class="report">
+          <p><span class="sec">FINDINGS</span> <span class="gap">Solitary 7 mm solid nodule, smooth margins, right lower lobe.</span></p>
+          <p><span class="sec">IMPRESSION</span> Solitary 7 mm solid nodule.</p>
+          <p><span class="sec">RECOMMENDATION</span> CT in 6–12 months, consider 18–24 months, assuming low risk.</p>
+        </div>
+        <div class="ask">
+          <div class="ask-t">The LLM asks back</div>
+          Contrast? · Risk history? · Segment? · Calcification or fat? · How was 7 mm measured?
+        </div>
+        <div class="verdict"><span class="v">✓ Identifies exactly what is missing</span></div>
+        <div class="checks"><span class="y">✓ Organization</span><span class="p">◐ Completeness</span><span class="y">✓ Fidelity</span></div>
+      </div>
+    </section>
+
+    <!-- STEP 2: CONTEXT ENGINEERING -->
+    <section class="col c-context">
+      <div class="head">
+        <div class="step">Step 2</div>
+        <h2>Context engineering</h2>
+        <p>The guideline and the radiologist's answers are supplied, attached whole or retrieved on demand (RAG).</p>
+      </div>
+      <div class="stack">
+        <div class="layer l-prompt">
+          <div class="t">Instructions</div>
+          <span class="quote">As in step 1, plus: “use the Fleischner 2017 guidelines and the attached PDFs.”</span>
+        </div>
+        <div class="layer l-context new">
+          <div class="t">Context <span class="tag">NEW</span></div>
+          <div class="item">
+            <svg width="30" height="36"><use href="#i-pdf"/></svg>
+            <div><b>Fleischner Society 2017 guidelines</b><small>PDF · 16 pages (Radiology 2017;284:228–243)</small></div>
+          </div>
+          <div class="item">
+            <svg width="30" height="36"><use href="#i-pdf"/></svg>
+            <div><b>Reference article</b><small>PDF</small></div>
+          </div>
+          <div class="item">
+            <svg width="30" height="36"><use href="#i-chat"/></svg>
+            <div><b>Radiologist's answers to step 1</b><small>Non-contrast · no risk factors · superior segment · no calcification or fat · mean diameter · no other findings</small></div>
+          </div>
+          <div class="item rag">
+            <svg width="30" height="36"><use href="#i-db"/></svg>
+            <div><b>RAG, for larger libraries</b><small>Here the PDFs were attached whole. With many or long documents, retrieval-augmented generation (RAG) sends only the relevant passages, such as the 6–8 mm solid-nodule row.</small></div>
+          </div>
+        </div>
+        <div class="layer l-user">
+          <div class="t">User prompt</div>
+          <span class="quote">“70-year-old man, never smoked. Chest CT for chronic cough…”</span>
+        </div>
+      </div>
+      <div class="llm"><div class="arrow">▼</div><div class="node">LLM</div><div class="arrow">▼</div></div>
+      <div class="out-box">
+        <div class="lbl">Report (abridged)</div>
+        <div class="report">
+          <p><span class="sec">FINDINGS</span> <span class="ok">Solid nodule, superior segment (S6) right lower lobe, 7 mm mean diameter, smooth, no calcification or fat.</span> <span class="ok">No other relevant findings.</span></p>
+          <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule, <span class="ok">low risk.</span></p>
+          <p><span class="sec">RECOMMENDATION</span> <span class="ok">Low-dose non-contrast CT in 6–12 months</span>, consider 18–24 months.</p>
+        </div>
+        <div class="verdict"><span class="v">✓ Complete description, risk and pertinent negatives</span></div>
+        <div class="checks"><span class="y">✓ Organization</span><span class="y">✓ Completeness</span><span class="y">✓ Fidelity</span></div>
+      </div>
+    </section>
+
+    <!-- STEP 3: TOOL USE -->
+    <section class="col c-tools">
+      <div class="head">
+        <div class="step">Step 3</div>
+        <h2>Tool use</h2>
+        <p>The LLM hands the numbers to a calculator instead of working them out itself.</p>
+      </div>
+      <div class="stack">
+        <div class="layer l-prompt">
+          <div class="t">Instructions</div>
+          <span class="quote">As in step 1.</span>
+        </div>
+        <div class="layer l-context">
+          <div class="t">Context</div>
+          <span class="quote">As in step 2.</span>
+        </div>
+        <div class="layer l-tools new">
+          <div class="t">Tools <span class="tag">NEW</span></div>
+          <div class="item">
+            <svg width="30" height="36"><use href="#i-calc"/></svg>
+            <div><b>Fleischner calculator</b>
+              <div class="calc"><span class="in">7 mm · solid · single · low risk</span>→<span class="out">6–12 mo</span></div>
+            </div>
+          </div>
+          <div class="item">
+            <svg width="30" height="36"><use href="#i-cal"/></svg>
+            <div><b>Follow-up date calculator</b>
+              <div class="calc"><span class="in">Nov 8, 2026 + 6–12 mo</span>→<span class="out">May–Nov 2027</span></div>
+            </div>
+          </div>
+          <div class="badge"><svg width="16" height="16"><use href="#i-repeat"/></svg>Same input, same answer, every time</div><br>
+          <div class="badge"><svg width="16" height="16"><use href="#i-lock"/></svg>Runs on a local computer; data stays on-site</div>
+        </div>
+        <div class="layer l-user">
+          <div class="t">User prompt</div>
+          <span class="quote">“70-year-old man, never smoked. Chest CT for chronic cough…”</span>
+        </div>
+      </div>
+      <div class="llm"><div class="arrow">▼</div><div class="node">LLM</div><div class="arrow">▼</div></div>
+      <div class="out-box">
+        <div class="lbl">Report · illustrative</div>
+        <div class="report">
+          <p><span class="sec">FINDINGS</span> <span class="same">As in step 2.</span></p>
+          <p><span class="sec">IMPRESSION</span> <span class="same">As in step 2.</span></p>
+          <p><span class="sec">RECOMMENDATION</span> <span class="ok">Chest CT between May 8 and November 8, 2027</span>, then consider CT at 18–24 months.</p>
+        </div>
+        <div class="verdict"><span class="v">✓ Calculated, not guessed · actionable dates</span></div>
+        <div class="checks"><span class="y">✓ Organization</span><span class="y">✓ Completeness</span><span class="y">✓ Fidelity</span></div>
+      </div>
+    </section>
+
+  </div>
+
+
+  <footer>
+    <span><span class="sw" style="background:#fdf1dc;border:1px solid #a15c00"></span>Incomplete</span>
+    <span><span class="sw" style="background:var(--ok-bg);border:1px solid var(--ok)"></span>Correct, guideline-based</span>
+    <span>◐ Partial</span>
+    <span>Faded layers: carried over from earlier steps</span>
+    <span class="spacer"></span>
+    <span>Fictitious case. Example reports, Base to Step 2: ChatGPT 6 (app), abridged. Step 3: illustrative.</span>
+  </footer>
+</div>
+</body>
+</html>

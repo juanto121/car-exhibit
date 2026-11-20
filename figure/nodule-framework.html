@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nodule Framework Figure</title>
+<style>
+  :root {
+    --ink: #1d2733;
+    --muted: #5b6672;
+    --line: #d8dde3;
+    --panel: #f5f7f9;
+    --prompt: #2f6fde;
+    --context: #0d8f63;
+    --tools: #7a3be0;
+    --human: #c46a00;
+    --base: #8a939c;
+    --err-bg: #fde7e7;
+    --err: #b42318;
+    --ok-bg: #e3f5ec;
+    --ok: #0b7a4b;
+    --warn: #a15c00;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; }
+  body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .fig { width: 1800px; padding: 36px 40px 28px; }
+
+  header h1 { font-size: 30px; margin: 0 0 6px; letter-spacing: -0.3px; }
+  header p { font-size: 17px; color: var(--muted); margin: 0 0 22px; }
+
+  .case {
+    display: flex; gap: 18px; align-items: center;
+    border: 2px solid var(--ink); border-radius: 10px;
+    padding: 14px 20px; margin-bottom: 26px; font-size: 18px; line-height: 1.4;
+  }
+  .case .tag {
+    flex: none; background: var(--ink); color: #fff; font-weight: 700;
+    font-size: 13px; letter-spacing: 0.8px; text-transform: uppercase;
+    padding: 6px 10px; border-radius: 5px;
+  }
+  .case b { font-weight: 700; }
+
+  /* ascending staircase above the columns */
+  .stairs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; align-items: end; height: 70px; }
+  .stair { border-radius: 6px 6px 0 0; position: relative; }
+  .stair span {
+    position: absolute; left: 12px; bottom: 7px; color: #fff; font-weight: 700;
+    font-size: 14px; letter-spacing: 0.6px; text-transform: uppercase;
+  }
+  .s0 { height: 26px; background: var(--base); }
+  .s1 { height: 37px; background: var(--prompt); }
+  .s2 { height: 48px; background: var(--context); }
+  .s3 { height: 59px; background: var(--tools); }
+  .s4 { height: 70px; background: var(--human); }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: auto auto auto auto; column-gap: 18px;
+  }
+  .col {
+    display: grid; grid-row: span 4; grid-template-rows: subgrid;
+    border: 1px solid var(--line); border-top: none; border-radius: 0 0 10px 10px;
+    background: #fff;
+  }
+  .col.baseline { background: #fbfbfc; }
+
+  .head { padding: 14px 16px 12px; border-bottom: 1px solid var(--line); }
+  .head h2 { font-size: 20px; margin: 0 0 8px; line-height: 1.2; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-size: 13px; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+    border: 1.5px solid currentColor;
+  }
+  .chip.prompt { color: var(--prompt); }
+  .chip.context { color: var(--context); }
+  .chip.tools { color: var(--tools); }
+  .chip.human { color: var(--human); }
+  .chip.none { color: var(--base); }
+
+  .label {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .added { padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.4; }
+  .added ul { margin: 0; padding-left: 18px; }
+  .added li { margin-bottom: 3px; }
+  .added .quote { font-style: italic; }
+  code, .code {
+    font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px;
+  }
+  .code {
+    display: block; background: #fff; border: 1px solid var(--line); border-radius: 6px;
+    padding: 7px 8px; margin-top: 6px; line-height: 1.45; color: var(--ink); white-space: normal;
+  }
+  .code .ret { color: var(--tools); font-weight: 700; }
+
+  .out { padding: 12px 16px 10px; font-size: 15px; line-height: 1.45; }
+  .report {
+    border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+    font-family: Georgia, "Times New Roman", serif; font-size: 15px; line-height: 1.45;
+  }
+  .report p { margin: 0 0 7px; }
+  .report p:last-child { margin-bottom: 0; }
+  .report .sec { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.6px; }
+  .report .same { color: var(--muted); font-style: italic; }
+  .err { background: var(--err-bg); color: var(--err); border-radius: 3px; padding: 0 2px; }
+  .ok { background: var(--ok-bg); color: var(--ok); border-radius: 3px; padding: 0 2px; }
+
+  .notes { list-style: none; margin: 9px 0 0; padding: 0; font-size: 14px; line-height: 1.35; }
+  .notes li { margin-bottom: 5px; padding-left: 20px; position: relative; }
+  .notes li::before { position: absolute; left: 0; font-weight: 700; }
+  .notes .x { color: var(--err); }   .notes .x::before { content: "✗"; }
+  .notes .v { color: var(--ok); }    .notes .v::before { content: "✓"; }
+  .notes .w { color: var(--warn); }  .notes .w::before { content: "!"; left: 4px; }
+
+  .verify { list-style: none; margin: 0; padding: 0; font-size: 15px; line-height: 1.4; }
+  .verify li { padding: 8px 10px; border-radius: 6px; background: var(--ok-bg); margin-bottom: 7px; }
+  .verify b { color: var(--ok); }
+  .signoff {
+    margin-top: 4px; padding: 9px 10px; border-radius: 6px; border: 2px solid var(--human);
+    color: var(--ink); font-size: 15px; line-height: 1.4;
+  }
+  .signoff b { color: var(--human); }
+
+  .checks {
+    display: flex; justify-content: space-between; gap: 4px; padding: 10px 14px 12px;
+    border-top: 1px solid var(--line); font-size: 13.5px; font-weight: 700; align-self: end;
+  }
+  .checks span { white-space: nowrap; }
+  .checks .y { color: var(--ok); }
+  .checks .n { color: var(--err); }
+
+  footer {
+    display: flex; gap: 26px; align-items: center; flex-wrap: wrap;
+    margin-top: 18px; font-size: 14px; color: var(--muted);
+  }
+  footer .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+  footer .spacer { flex: 1; }
+</style>
+</head>
+<body>
+<div class="fig">
+  <header>
+    <h1>One case, four steps: guiding an LLM to report an incidental pulmonary nodule</h1>
+    <p>Each column receives the same findings. Each step adds to the one before it; the box below shows what the LLM produced at that step.</p>
+  </header>
+
+  <div class="case">
+    <div class="tag">Supplied findings</div>
+    <div>70-year-old man, <b>never smoker</b>. Chest CT for <b>chronic cough</b>. Incidental <b>single 7&nbsp;mm solid nodule</b>, right lower lobe, smooth margins. No prior CT. Exam date: 2026-11-08.</div>
+  </div>
+
+  <div class="stairs">
+    <div class="stair s0"><span>Baseline</span></div>
+    <div class="stair s1"><span>Step 1</span></div>
+    <div class="stair s2"><span>Step 2</span></div>
+    <div class="stair s3"><span>Step 3</span></div>
+    <div class="stair s4"><span>Step 4</span></div>
+  </div>
+
+  <div class="grid">
+    <!-- BASELINE -->
+    <div class="col baseline">
+      <div class="head">
+        <h2>Without the framework</h2>
+        <div class="chips"><span class="chip none">Generic use</span></div>
+      </div>
+      <div class="added">
+        <div class="label">What is added</div>
+        <div class="quote">“Write a chest CT report for these findings.”</div>
+      </div>
+      <div class="out">
+        <div class="label">LLM output</div>
+        <div class="report">
+          <p>There is a 7 mm nodule in the right lower lobe. <span class="err">No mediastinal lymphadenopathy. No pleural effusion.</span> <span class="err">Lung-RADS 3: low-dose CT in 6 months.</span></p>
+        </div>
+        <ul class="notes">
+          <li class="x">Fabricated: nodes and pleura were not in the supplied findings</li>
+          <li class="x">Wrong guideline: Lung-RADS is for screening, not incidental nodules</li>
+          <li class="x">No impression; attenuation and margins dropped</li>
+        </ul>
+      </div>
+      <div class="checks"><span class="n">✗ Organization</span><span class="n">✗ Completeness</span><span class="n">✗ Fidelity</span></div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="col">
+      <div class="head">
+        <h2>Define the task and format</h2>
+        <div class="chips"><span class="chip prompt">Prompting</span></div>
+      </div>
+      <div class="added">
+        <div class="label">What is added</div>
+        <ul>
+          <li>Role: thoracic radiologist</li>
+          <li>Format: Findings / Impression / Recommendation</li>
+          <li>Rule: use only supplied findings; flag missing data</li>
+        </ul>
+      </div>
+      <div class="out">
+        <div class="label">LLM output</div>
+        <div class="report">
+          <p><span class="sec">FINDINGS</span> Single 7 mm solid nodule, right lower lobe, smooth margins. No prior CT for comparison.</p>
+          <p><span class="sec">IMPRESSION</span> Indeterminate 7 mm solid pulmonary nodule.</p>
+          <p><span class="sec">RECOMMENDATION</span> <span class="err">Follow-up CT in 3–6 months (Fleischner).</span></p>
+        </div>
+        <ul class="notes">
+          <li class="x">Interval recalled from memory: 3–6 months applies to multiple or subsolid nodules</li>
+          <li class="x">No applicability check or risk category</li>
+        </ul>
+      </div>
+      <div class="checks"><span class="y">✓ Organization</span><span class="n">✗ Completeness</span><span class="y">✓ Fidelity</span></div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="col">
+      <div class="head">
+        <h2>Supply the knowledge</h2>
+        <div class="chips"><span class="chip context">Context engineering</span><span class="chip context">RAG</span></div>
+      </div>
+      <div class="added">
+        <div class="label">What is added</div>
+        <ul>
+          <li>Department report template</li>
+          <li>Fleischner 2017 table and applicability criteria, retrieved on demand (RAG)</li>
+          <li>Preference: always state the risk category</li>
+        </ul>
+      </div>
+      <div class="out">
+        <div class="label">LLM output</div>
+        <div class="report">
+          <p><span class="sec">FINDINGS</span> <span class="same">As in step 1.</span></p>
+          <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule. <span class="ok">Fleischner applies: age ≥35, not screening, no known cancer, not immunocompromised. Low risk: never smoker, no other risk factors supplied.</span></p>
+          <p><span class="sec">RECOMMENDATION</span> <span class="ok">CT at 6–12 months, then consider CT at 18–24 months</span> [Fleischner 2017].</p>
+        </div>
+        <ul class="notes">
+          <li class="v">Guideline-grounded and cited</li>
+          <li class="w">The model still derives the interval itself, so wording can vary between runs</li>
+        </ul>
+      </div>
+      <div class="checks"><span class="y">✓ Organization</span><span class="y">✓ Completeness</span><span class="y">✓ Fidelity</span></div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="col">
+      <div class="head">
+        <h2>Connect the tools</h2>
+        <div class="chips"><span class="chip tools">Tool use (local MCP)</span></div>
+      </div>
+      <div class="added">
+        <div class="label">What is added</div>
+        Tools on a local server; data stays on-premises:
+        <span class="code">fleischner(size=7, type="solid", count=1, risk="low")<br><span class="ret">→ 6–12 mo; consider 18–24 mo</span><br>followup_window("2026-11-08", 6, 12)<br><span class="ret">→ 2027-05-08 to 2027-11-08</span></span>
+      </div>
+      <div class="out">
+        <div class="label">LLM output</div>
+        <div class="report">
+          <p><span class="sec">FINDINGS</span> <span class="same">As in step 1.</span></p>
+          <p><span class="sec">IMPRESSION</span> <span class="same">As in step 2.</span></p>
+          <p><span class="sec">RECOMMENDATION</span> <span class="ok">Non-contrast chest CT between May 8 and November 8, 2027 (6–12 months)</span>, then consider CT at 18–24 months.</p>
+        </div>
+        <ul class="notes">
+          <li class="v">Calculated by the tool: same answer on every run</li>
+          <li class="v">Actionable follow-up dates</li>
+        </ul>
+      </div>
+      <div class="checks"><span class="y">✓ Organization</span><span class="y">✓ Completeness</span><span class="y">✓ Fidelity</span></div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="col">
+      <div class="head">
+        <h2>Verify and sign off</h2>
+        <div class="chips"><span class="chip prompt">Prompting</span><span class="chip human">Radiologist</span></div>
+      </div>
+      <div class="added">
+        <div class="label">What is added</div>
+        <ul>
+          <li>Verification prompt: check the draft line by line against the supplied findings and the template</li>
+          <li>Radiologist review</li>
+        </ul>
+      </div>
+      <div class="out">
+        <div class="label">Verification</div>
+        <ul class="verify">
+          <li><b>✓ Organization</b> · Findings, Impression and Recommendation present, in order</li>
+          <li><b>✓ Completeness</b> · size, attenuation, location, margins, comparison, risk, interval</li>
+          <li><b>✓ Fidelity</b> · no statement absent from the supplied findings</li>
+        </ul>
+        <div class="signoff"><b>Radiologist</b> confirms the risk category and signs the report.</div>
+      </div>
+      <div class="checks"><span class="y">✓ Organization</span><span class="y">✓ Completeness</span><span class="y">✓ Fidelity</span></div>
+    </div>
+  </div>
+
+  <footer>
+    <span><span class="sw" style="background:var(--err-bg);border:1px solid var(--err)"></span>Error or fabricated content</span>
+    <span><span class="sw" style="background:var(--ok-bg);border:1px solid var(--ok)"></span>Grounded in the guideline or calculated by a tool</span>
+    <span><span class="sw" style="background:var(--prompt)"></span>Prompting</span>
+    <span><span class="sw" style="background:var(--context)"></span>Context engineering</span>
+    <span><span class="sw" style="background:var(--tools)"></span>Tool use</span>
+    <span><span class="sw" style="background:var(--human)"></span>Radiologist</span>
+    <span class="spacer"></span>
+    <span>Fictitious case for illustration.</span>
+  </footer>
+</div>
+</body>
+</html>
