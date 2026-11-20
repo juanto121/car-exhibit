@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Harness Before You Climb</title>
+<meta name="description" content="Figure: a stepwise framework for LLM-assisted radiology reporting, applied to an incidental pulmonary nodule.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  /* One figure, framed like a poster on a light board; the page itself follows the viewer's theme. */
+  :root {
+    --bg: #f3f5f7; --surface: #ffffff; --ink: #18222d; --muted: #5d6b79; --line: #d9e0e6; --accent: #1f5f8b;
+    --font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #11161b; --surface: #1a2027; --ink: #e4e9ee; --muted: #9aa7b3; --line: #2e3740; --accent: #7fb6dc; color-scheme: dark; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font); }
+  main { max-width: 1440px; margin: 0 auto; padding-block: 32px 48px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+  h1 { font-size: clamp(24px, 3.2vw, 36px); line-height: 1.2; margin: 0 0 6px; text-wrap: balance; }
+  .sub { color: var(--muted); margin: 0 0 22px; max-width: 70ch; }
+  figure { margin: 0; }
+  .frame { background: #ffffff; border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  .frame a { display: block; }
+  .frame img { display: block; width: 100%; height: auto; border-radius: 6px; }
+  figcaption { margin-top: 14px; max-width: 80ch; color: var(--ink); }
+  figcaption b { font-weight: 700; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 18px; font-size: 15px; }
+  a { color: var(--accent); }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+  footer { margin-top: 28px; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">CAR 2027 · Educational exhibit</p>
+  <h1>Harness Before You Climb: A Stepwise Framework for LLM-Assisted Radiology Reporting</h1>
+  <p class="sub">The framework applied to an incidental pulmonary nodule: each step adds prompting, context, or tools to what the model reads, and the report improves with it.</p>
+
+  <figure>
+    <div class="frame">
+      <a href="figure/pipeline.png" title="Open the full-resolution figure">
+        <img src="figure/pipeline.png" width="3600" height="2680"
+             alt="Four columns, Base to Step 3. Base: the user prompt alone gives a thin report. Step 1, prompting: role, output format and clarifying-question instructions; the model asks for missing details. Step 2, context engineering: the Fleischner 2017 guideline and the radiologist's answers give a complete, guideline-based report. Step 3, tool use: calculators return the follow-up interval and dates.">
+      </a>
+    </div>
+    <figcaption><b>Figure.</b> Stepwise framework applied to an incidental 7 mm solid pulmonary nodule (fictitious case). Each step adds a layer to the LLM input: instructions placed before the user prompt (prompting), the Fleischner 2017 guideline PDF and the radiologist's answers to the model's questions, with retrieval-augmented generation (RAG) as the option for larger document libraries (context engineering), and local calculators for the follow-up interval and dates (tool use). Abridged reports are compared for organization, completeness, and fidelity to supplied findings; the Step 3 report is illustrative.</figcaption>
+  </figure>
+
+  <div class="links">
+    <a href="figure/pipeline.png">Full-resolution figure (PNG)</a>
+    <a href="https://github.com/juanto121/car-exhibit">Project repository</a>
+  </div>
+
+  <footer>Fictitious case. Example reports, Base to Step 2: ChatGPT 6 (app), abridged. Step 3: illustrative.</footer>
+</main>
+</body>
+</html>
