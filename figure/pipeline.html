@@ -185,7 +185,7 @@
       <div class="head">
         <div class="step">Base</div>
         <h2>User prompt only</h2>
-        <p>What most radiologists type today.</p>
+        <p>A minimal request: findings only, no instructions.</p>
       </div>
       <div class="stack">
         <div class="layer l-user new">
@@ -199,7 +199,7 @@
         <div class="report">
           <p><span class="sec">FINDINGS</span> <span class="gap">Solitary 7 mm solid nodule, smooth margins, right lower lobe.</span></p>
           <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
-          <p><span class="sec">RECOMMENDATION</span> CT in 6–12 months, consider 18–24 months (Fleischner 2017).</p>
+          <p><span class="sec">RECOMMENDATION</span> Non-contrast CT in 6–12 months, consider 18–24 months.</p>
         </div>
         <div class="verdict"><span class="v">✓ Organized, nothing invented</span><br><span class="w">! Thin description; asks nothing; other findings not addressed</span></div>
         <div class="checks"><span class="y">✓ Organization</span><span class="p">◐ Completeness</span><span class="y">✓ Fidelity</span></div>
@@ -219,7 +219,8 @@
           <ul>
             <li>Write as a thoracic radiologist. <span class="tech">Role</span></li>
             <li>Structured report: technique, findings, impression, recommendations. <span class="tech">Output format</span></li>
-            <li>Ask me if anything is missing. <span class="tech">Clarifying questions</span></li>
+            <li>Before writing, reason step by step: check that Fleischner applies, assign the risk category, then choose the follow-up. <span class="tech">Chain of thought</span></li>
+            <li>If attenuation, segment, calcification or measurement method is missing, ask before writing. <span class="tech">Clarifying questions</span></li>
           </ul>
         </div>
         <div class="layer l-user">
@@ -231,13 +232,14 @@
       <div class="out-box">
         <div class="lbl">Report (abridged)</div>
         <div class="report">
-          <p><span class="sec">FINDINGS</span> <span class="gap">Solitary 7 mm solid nodule, smooth margins, right lower lobe.</span></p>
+          <p><span class="sec">TECHNIQUE</span> <span class="gap">Chest CT; contrast use not provided.</span></p>
+          <p><span class="sec">FINDINGS</span> Lungs: <span class="gap">solitary 7 mm solid nodule, smooth margins, right lower lobe.</span> Other structures: not described in the request.</p>
           <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
-          <p><span class="sec">RECOMMENDATION</span> CT in 6–12 months, consider 18–24 months, assuming low risk.</p>
+          <p><span class="sec">RECOMMENDATION</span> Non-contrast CT in 6–12 months, consider 18–24 months.</p>
         </div>
         <div class="ask">
           <div class="ask-t">The LLM asks back</div>
-          Contrast? · Risk history? · Segment? · Calcification or fat? · How was 7 mm measured?
+          Which segment? · Any calcification or fat? · Is 7 mm the mean of long and short axes? · Other risk factors?
         </div>
         <div class="verdict"><span class="v">✓ Identifies exactly what is missing</span></div>
         <div class="checks"><span class="y">✓ Organization</span><span class="p">◐ Completeness</span><span class="y">✓ Fidelity</span></div>
@@ -272,7 +274,7 @@
           </div>
           <div class="item rag">
             <svg width="30" height="36"><use href="#i-db"/></svg>
-            <div><b>RAG, for larger libraries</b><small>Here the PDFs were attached whole. With many or long documents, retrieval-augmented generation (RAG) sends only the relevant passages, such as the 6–8 mm solid-nodule row.</small></div>
+            <div><b>RAG, for larger libraries</b><small>Here the PDFs were attached whole. With many or long documents, retrieval-augmented generation (RAG) sends only the relevant passages.</small></div>
           </div>
         </div>
         <div class="layer l-user">
@@ -286,7 +288,7 @@
         <div class="report">
           <p><span class="sec">FINDINGS</span> <span class="ok">Solid nodule, superior segment (S6) right lower lobe, 7 mm mean diameter, smooth, no calcification or fat.</span> <span class="ok">No other relevant findings.</span></p>
           <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
-          <p><span class="sec">RECOMMENDATION</span> <span class="ok">Low-dose non-contrast CT in 6–12 months</span>, consider 18–24 months.</p>
+          <p><span class="sec">RECOMMENDATION</span> <span class="ok">Low-dose non-contrast CT in 6–12 months</span>, consider 18–24 months <span class="ok">(Fleischner 2017)</span>.</p>
         </div>
         <div class="verdict"><span class="v">✓ Complete description, risk and pertinent negatives</span></div>
         <div class="checks"><span class="y">✓ Organization</span><span class="y">✓ Completeness</span><span class="y">✓ Fidelity</span></div>
@@ -337,7 +339,7 @@
         <div class="report">
           <p><span class="sec">FINDINGS</span> <span class="same">As in step 2.</span></p>
           <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
-          <p><span class="sec">RECOMMENDATION</span> <span class="ok">Chest CT between May 8 and November 8, 2027</span>, then consider CT at 18–24 months.</p>
+          <p><span class="sec">RECOMMENDATION</span> <span class="ok">Low-dose non-contrast CT between May 8 and November 8, 2027</span>, consider 18–24 months <span class="ok">(Fleischner 2017)</span>.</p>
         </div>
         <div class="verdict"><span class="v">✓ Calculated, not guessed · actionable dates</span></div>
         <div class="checks"><span class="y">✓ Organization</span><span class="y">✓ Completeness</span><span class="y">✓ Fidelity</span></div>
@@ -353,7 +355,7 @@
     <span>◐ Partial</span>
     <span>Faded layers: carried over from earlier steps</span>
     <span class="spacer"></span>
-    <span>Fictitious case. Example reports, Base to Step 2: ChatGPT 6 (app), abridged. Step 3: illustrative.</span>
+    <span>Fictitious case. Example reports, Base to Step 2: adapted from ChatGPT 6 (app) runs. Step 3: illustrative.</span>
   </footer>
 </div>
 </body>
