@@ -5,7 +5,7 @@
 <title>Framework Pipeline</title>
 <!--
   Editing guide
-  - Each step is one <section class="col">. Text is plain HTML: edit it in place.
+  - Each step is one <section class="col">. Its --rise sets how much higher the card starts (staircase). Text is plain HTML: edit it in place.
   - The LLM input is a stack of .layer blocks, read top to bottom. The user prompt is always the last layer.
     Mark the layer added in that step with class "new".
   - Highlights in outputs: <span class="err">…</span> (error) and <span class="ok">…</span> (correct).
@@ -20,19 +20,22 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; background: #fff; }
   body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
-  .fig { width: 1800px; padding: 34px 40px 30px; }
+  .fig { width: 1800px; padding: 34px 40px 30px; position: relative; overflow: hidden; }
+  .fig > h1, .fig > .sub, .fig > footer { position: relative; z-index: 1; }
+  /* Mountain silhouette behind the staircase of cards, with a flag at the summit. */
+  .mountain { position: absolute; top: 0; left: 0; width: 1800px; height: 700px; z-index: 0; pointer-events: none; }
   h1 { font-size: 30px; margin: 0 0 6px; letter-spacing: -0.3px; }
   .sub { font-size: 17px; color: var(--muted); margin: 0 0 26px; }
 
-  .grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: auto 1fr auto auto; column-gap: 46px; }
-  .col { display: grid; grid-row: span 4; grid-template-rows: subgrid; position: relative; }
-  .col + .col::before {            /* pipeline arrow between columns */
-    content: "➜"; position: absolute; left: -38px; top: 6px; font-size: 30px; color: #b7bec7;
-  }
+  /* Staircase: each card starts higher than the one before (--rise), all end on the same baseline. */
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 26px; align-items: stretch; position: relative; z-index: 1; }
+  .col { display: flex; flex-direction: column; margin-top: var(--rise, 0px); background: #fff;
+         border: 1px solid var(--line); border-radius: 16px; padding: 16px 16px 16px; box-shadow: 0 6px 18px -12px rgba(29,39,51,.35); }
+  .col > .out-box { flex: 1; }
 
   /* step header */
   .head { padding-bottom: 14px; }
-  .step { font-size: 14px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); }
+  .step { font-size: 15px; font-weight: 700; letter-spacing: 0.1px; color: var(--muted); }
   .head h2 { font-size: 26px; margin: 4px 0 4px; line-height: 1.15; }
   .head p { margin: 0; font-size: 16px; color: var(--muted); line-height: 1.35; }
   .c-prompt h2 { color: var(--prompt); }
@@ -40,13 +43,13 @@
   .c-tools h2 { color: var(--tools); }
 
   /* LLM input stack */
-  .stack { display: flex; flex-direction: column; justify-content: flex-end; gap: 8px;
-           border: 2px dashed var(--line); border-radius: 12px; padding: 30px 10px 10px; position: relative; }
-  .stack::before { content: "LLM input · read top to bottom"; position: absolute; top: 8px; left: 12px;
-           font-size: 12px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; color: var(--muted); }
+  .stack { display: flex; flex-direction: column; gap: 8px; background: #fff;
+           border: 1.5px solid var(--line); border-radius: 12px; padding: 30px 10px 10px; position: relative; }
+  .stack::before { content: "LLM input"; position: absolute; top: 8px; left: 12px;
+           font-size: 13.5px; font-weight: 700; letter-spacing: 0.1px; color: var(--muted); }
   .layer { border-radius: 9px; padding: 10px 12px; font-size: 15px; line-height: 1.4; border: 1.5px solid; background: #fff; opacity: 0.55; }
   .layer.new { opacity: 1; box-shadow: 0 0 0 3px rgba(0,0,0,0.04); border-width: 2.5px; }
-  .layer .t { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 5px; }
+  .layer .t { display: flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 700; letter-spacing: 0.1px; margin-bottom: 5px; }
   .layer .t .tag { margin-left: auto; font-size: 11px; color: #fff; padding: 2px 7px; border-radius: 99px; letter-spacing: 0.5px; }
   .layer ul { margin: 0; padding-left: 18px; }
   .l-user { border-color: var(--user); } .l-user .t { color: var(--user); }
@@ -63,7 +66,7 @@
   .item small { display: block; color: var(--muted); font-size: 13.5px; line-height: 1.35; }
 
   /* calculator readout for tools */
-  .calc { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 13.5px; }
+  .calc { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12.5px; white-space: nowrap; }
   .calc .in, .calc .out { border: 1px solid var(--line); border-radius: 6px; padding: 4px 7px; background: var(--soft); }
   .calc .out { background: #efe8fd; border-color: #cdb8f5; color: var(--tools); font-weight: 700; }
   .badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13px; font-weight: 700; color: var(--tools); }
@@ -71,7 +74,7 @@
   /* LLM node */
   .llm { display: flex; flex-direction: column; align-items: center; padding: 10px 0; }
   .llm .arrow { font-size: 22px; color: #b7bec7; line-height: 1; }
-  .llm .node { margin: 6px 0; background: var(--ink); color: #fff; font-weight: 700; font-size: 16px; padding: 8px 22px; border-radius: 99px; letter-spacing: 0.5px; }
+  .llm .node { margin: 6px 0; background: #eef1f4; color: #4b5563; border: 1px solid var(--line); font-weight: 700; font-size: 16px; padding: 8px 22px; border-radius: 99px; letter-spacing: 0.5px; }
 
   /* output */
   .out-box { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 0; background: var(--soft); display: flex; flex-direction: column; }
@@ -84,7 +87,7 @@
           background: #e8f0fd; border: 1px solid #b9cff6; border-radius: 99px; padding: 0 7px; vertical-align: 1px; white-space: nowrap; }
   .layer ul li { margin-bottom: 3px; }
   .stats { margin: 0 -14px; padding: 10px 14px 12px; border-top: 1px solid var(--line); background: #fff; border-radius: 0 0 10px 10px; }
-  .stats-t { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .stats-t { font-size: 12px; font-weight: 700; letter-spacing: 0.1px; color: var(--muted); margin-bottom: 6px; }
   .stats table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .stats th { font-size: 11.5px; color: var(--muted); font-weight: 700; text-align: right; padding: 2px 4px; }
   .stats td { text-align: right; padding: 3px 4px; font-weight: 700; border-top: 1px solid var(--soft); }
@@ -112,12 +115,12 @@
   .gap { background: #fdf1dc; color: #8a4b00; border-radius: 3px; padding: 0 2px; }
   .report .same { color: var(--muted); font-style: italic; }
   .ask { margin-top: 8px; border: 1.5px solid var(--prompt); border-radius: 8px; background: #fff; padding: 7px 10px; font-size: 13.5px; line-height: 1.35; }
-  .ask-t { font-size: 12px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--prompt); margin-bottom: 3px; }
+  .ask-t { font-size: 13.5px; font-weight: 700; letter-spacing: 0.1px; color: var(--prompt); margin-bottom: 3px; }
   .ask ul { margin: 0; padding-left: 17px; }
-  .out-box .lbl { font-size: 12px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .out-box .lbl { font-size: 13.5px; font-weight: 700; letter-spacing: 0.1px; color: var(--muted); margin-bottom: 6px; }
   .report { font-family: Georgia, "Times New Roman", serif; font-size: 15.5px; line-height: 1.45; }
   .report p { margin: 0 0 5px; }
-  .sec { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.5px; }
+  .sec { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; font-size: 13.5px; letter-spacing: 0; }
   .err { background: var(--err-bg); color: var(--err); border-radius: 3px; padding: 0 2px; }
   .ok { background: var(--ok-bg); color: var(--ok); border-radius: 3px; padding: 0 2px; }
   .verdict { margin-top: 8px; font-size: 14px; font-weight: 700; line-height: 1.35; }
@@ -175,13 +178,27 @@
 </svg>
 
 <div class="fig">
+  <svg class="mountain" viewBox="0 0 1800 700" aria-hidden="true">
+    <defs>
+      <linearGradient id="mt-far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3eaf2"/><stop offset="1" stop-color="#e3eaf2" stop-opacity="0"/></linearGradient>
+      <linearGradient id="mt-near" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d7e1eb"/><stop offset="1" stop-color="#d7e1eb" stop-opacity="0"/></linearGradient>
+    </defs>
+    <!-- far range -->
+    <path d="M0.0 520.0 C6.3 517.3 24.3 508.2 37.9 503.7 C51.5 499.1 68.1 494.7 81.8 492.8 C95.5 490.8 107.5 491.8 120.0 492.0 C132.5 492.2 145.8 492.4 157.1 494.0 C168.4 495.6 175.9 499.5 188.0 501.5 C200.2 503.5 217.5 508.5 230.0 506.0 C242.5 503.5 250.9 494.0 262.8 486.7 C274.7 479.3 287.8 467.6 301.5 461.8 C315.2 456.0 331.4 455.5 345.0 452.0 C358.6 448.5 370.8 447.5 383.1 440.5 C395.3 433.6 405.3 417.6 418.5 410.5 C431.6 403.4 448.8 397.4 462.0 398.0 C475.2 398.6 486.3 412.2 497.9 414.3 C509.5 416.4 520.4 409.6 531.6 410.6 C542.8 411.6 552.0 424.3 565.0 420.0 C578.0 415.7 596.0 394.3 609.7 384.9 C623.4 375.6 635.3 370.9 647.3 363.8 C659.3 356.6 670.4 349.1 682.0 342.0 C693.6 334.9 704.3 324.4 717.1 321.0 C729.8 317.6 744.5 324.8 758.4 321.7 C772.2 318.5 787.9 303.9 800.0 302.0 C812.1 300.1 819.2 308.5 831.2 310.3 C843.1 312.1 859.4 310.8 871.7 312.8 C884.0 314.7 893.4 326.9 905.0 322.0 C916.6 317.1 930.2 294.2 941.2 283.3 C952.2 272.3 959.3 264.7 971.0 256.1 C982.8 247.6 998.7 237.7 1012.0 232.0 C1025.3 226.3 1039.0 224.7 1050.8 222.2 C1062.7 219.7 1071.2 219.6 1083.1 217.0 C1095.0 214.5 1110.6 208.0 1122.0 207.0 C1133.4 206.0 1140.8 207.9 1151.4 211.3 C1162.0 214.8 1175.4 224.2 1185.5 227.6 C1195.6 231.1 1201.4 236.0 1212.0 232.0 C1222.6 228.0 1235.5 212.2 1248.9 203.5 C1262.3 194.7 1278.5 189.8 1292.3 179.5 C1306.1 169.3 1318.8 150.1 1332.0 142.0 C1345.2 133.9 1358.2 134.6 1371.4 131.1 C1384.6 127.6 1399.3 122.5 1411.1 121.0 C1422.9 119.5 1432.0 120.5 1442.0 122.0 C1452.0 123.5 1461.7 129.0 1471.0 129.8 C1480.3 130.7 1487.7 127.1 1497.8 127.1 C1508.0 127.1 1522.8 130.4 1532.0 130.0 C1541.2 129.6 1543.7 127.3 1553.1 124.7 C1562.6 122.1 1578.7 117.6 1588.5 114.1 C1598.3 110.7 1604.7 107.0 1612.0 104.0 C1619.3 101.0 1626.8 97.3 1632.5 96.3 C1638.2 95.3 1641.8 98.6 1646.3 97.9 C1650.9 97.2 1654.2 92.0 1660.0 92.0 C1665.8 92.0 1673.6 94.1 1681.0 97.8 C1688.3 101.5 1697.6 111.9 1704.1 114.2 C1710.6 116.6 1714.5 111.2 1720.0 112.0 C1725.5 112.8 1732.1 117.3 1737.0 119.3 C1741.9 121.3 1743.6 123.2 1749.4 124.0 C1755.2 124.8 1766.4 121.8 1772.0 124.0 C1777.6 126.2 1779.3 136.8 1783.1 137.2 C1786.9 137.6 1791.7 126.9 1794.5 126.4 C1797.3 125.8 1799.1 132.7 1800.0 134.0 L1800 700 L0 700 Z" fill="url(#mt-far)"/>
+    <!-- near range, rising left to right like the steps -->
+    <path d="M0.0 602.0 C8.3 600.5 32.2 596.4 49.5 593.0 C66.9 589.5 87.5 584.9 104.2 581.5 C121.0 578.0 135.0 576.1 150.0 572.0 C165.0 567.9 179.9 562.3 194.1 556.7 C208.2 551.2 220.2 544.6 234.8 538.9 C249.5 533.1 268.4 525.1 282.0 522.0 C295.6 518.9 306.2 523.0 316.6 520.4 C327.1 517.7 333.7 509.1 344.6 506.2 C355.5 503.3 368.7 502.5 382.0 503.0 C395.3 503.5 408.7 510.1 424.6 509.3 C440.5 508.5 461.0 498.7 477.3 498.3 C493.5 498.0 507.1 508.5 522.0 507.0 C536.9 505.5 553.2 497.5 566.8 489.4 C580.4 481.4 591.0 468.4 603.5 458.8 C616.1 449.3 629.5 439.7 642.0 432.0 C654.5 424.3 665.2 417.6 678.6 412.6 C692.0 407.5 708.4 404.2 722.3 401.6 C736.2 399.0 749.2 397.6 762.0 397.0 C774.8 396.4 786.4 396.3 798.9 397.9 C811.5 399.4 823.5 404.1 837.3 406.4 C851.2 408.8 868.5 415.2 882.0 412.0 C895.5 408.8 905.8 397.1 918.1 387.5 C930.3 377.9 943.2 365.2 955.5 354.2 C967.8 343.3 979.8 329.2 992.0 322.0 C1004.2 314.8 1016.5 316.3 1028.7 311.3 C1040.8 306.2 1052.7 296.7 1064.9 291.8 C1077.1 286.9 1089.4 281.2 1102.0 282.0 C1114.6 282.8 1128.6 293.8 1140.3 296.6 C1152.0 299.4 1161.8 297.8 1172.1 298.7 C1182.4 299.6 1190.7 307.7 1202.0 302.0 C1213.3 296.3 1227.2 276.6 1240.2 264.3 C1253.1 252.1 1266.2 238.8 1279.9 228.5 C1293.5 218.1 1308.4 207.5 1322.0 202.0 C1335.6 196.5 1348.5 197.4 1361.3 195.4 C1374.1 193.4 1387.0 191.6 1398.8 190.2 C1410.6 188.8 1415.1 188.0 1432.0 187.0 C1448.9 186.0 1481.7 187.2 1500.0 184.0 C1518.3 180.8 1529.0 172.7 1542.0 168.0 C1555.0 163.3 1567.7 162.3 1578.0 156.0 C1588.3 149.7 1595.7 135.0 1604.0 130.0 C1612.3 125.0 1620.3 131.0 1628.0 126.0 C1635.7 121.0 1642.3 106.3 1650.0 100.0 C1657.7 93.7 1666.7 94.0 1674.0 88.0 C1681.3 82.0 1687.7 71.0 1694.0 64.0 C1700.3 57.0 1705.7 46.7 1712.0 46.0 C1718.3 45.3 1723.7 54.0 1732.0 60.0 C1740.3 66.0 1750.7 71.7 1762.0 82.0 C1773.3 92.3 1793.7 115.3 1800.0 122.0 L1800 700 L0 700 Z" fill="url(#mt-near)"/>
+    <path id="snow" d="M1660 100 C1664 94 1670 92 1674 86 C1679 80 1684 82 1689 74 C1694 67 1699 66 1703 58 C1706 52 1709 49 1712 46 C1716 50 1721 52 1725 58 C1729 63 1734 62 1739 68 C1744 73 1748 72 1753 78 C1749 82 1744 78 1738 83 C1732 88 1727 80 1720 86 C1713 92 1708 84 1700 90 C1692 96 1688 88 1680 94 C1672 99 1667 95 1660 100 Z" fill="#f4f7fa" opacity=".9"/>
+    <!-- summit flag -->
+    <line x1="1712" y1="46" x2="1712" y2="10" stroke="#3a4552" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M1712 10 L1742 19 L1712 28 Z" fill="#7a3be0"/>
+  </svg>
   <h1>Harness before you climb: the framework applied to an incidental pulmonary nodule</h1>
   <p class="sub">Each step adds a layer to what the LLM reads, and the report changes with it.</p>
 
   <div class="grid">
 
     <!-- BASE -->
-    <section class="col">
+    <section class="col" style="--rise: 500px">
       <div class="head">
         <div class="step">Base</div>
         <h2>User prompt only</h2>
@@ -197,9 +214,9 @@
       <div class="out-box">
         <div class="lbl">Report (abridged)</div>
         <div class="report">
-          <p><span class="sec">FINDINGS</span> <span class="gap">Solitary 7 mm solid nodule, smooth margins, right lower lobe.</span></p>
-          <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
-          <p><span class="sec">RECOMMENDATION</span> Non-contrast CT in 6–12 months, consider 18–24 months.</p>
+          <p><span class="sec">Findings</span> <span class="gap">Solitary 7 mm solid nodule, smooth margins, right lower lobe.</span></p>
+          <p><span class="sec">Impression</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
+          <p><span class="sec">Recommendation</span> Non-contrast CT in 6–12 months, consider 18–24 months.</p>
         </div>
         <div class="verdict"><span class="v">✓ Organized, nothing invented</span><br><span class="w">! Thin description; asks nothing; other findings not addressed</span></div>
         <div class="checks"><span class="y">✓ Organization</span><span class="p">◐ Completeness</span><span class="y">✓ Fidelity</span></div>
@@ -207,15 +224,15 @@
     </section>
 
     <!-- STEP 1: PROMPTING -->
-    <section class="col c-prompt">
+    <section class="col c-prompt" style="--rise: 270px">
       <div class="head">
         <div class="step">Step 1</div>
         <h2>Prompting</h2>
-        <p>Instructions placed <b>before</b> the user prompt.</p>
+        <p>Instructions placed before the user prompt.</p>
       </div>
       <div class="stack">
         <div class="layer l-prompt new">
-          <div class="t">Instructions <span class="tag">NEW</span></div>
+          <div class="t">Instructions</div>
           <ul>
             <li>Write as a thoracic radiologist. <span class="tech">Role</span></li>
             <li>Structured report: technique, findings, impression, recommendations. <span class="tech">Output format</span></li>
@@ -231,10 +248,10 @@
       <div class="out-box">
         <div class="lbl">Report (abridged)</div>
         <div class="report">
-          <p><span class="sec">TECHNIQUE</span> Non-contrast multidetector-row chest CT.</p>
-          <p><span class="sec">FINDINGS</span> Lungs: <span class="gap">solitary 7 mm solid nodule, smooth margins, right lower lobe.</span> Other structures: not described in the request.</p>
-          <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
-          <p><span class="sec">RECOMMENDATION</span> Non-contrast CT in 6–12 months, consider 18–24 months.</p>
+          <p><span class="sec">Technique</span> Non-contrast multidetector-row chest CT.</p>
+          <p><span class="sec">Findings</span> Lungs: <span class="gap">solitary 7 mm solid nodule, smooth margins, right lower lobe.</span> Other structures: not described in the request.</p>
+          <p><span class="sec">Impression</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
+          <p><span class="sec">Recommendation</span> Non-contrast CT in 6–12 months, consider 18–24 months.</p>
         </div>
         <div class="ask">
           <div class="ask-t">The LLM asks back</div>
@@ -246,7 +263,7 @@
     </section>
 
     <!-- STEP 2: CONTEXT ENGINEERING -->
-    <section class="col c-context">
+    <section class="col c-context" style="--rise: 110px">
       <div class="head">
         <div class="step">Step 2</div>
         <h2>Context engineering</h2>
@@ -255,17 +272,13 @@
       <div class="stack">
         <div class="layer l-prompt">
           <div class="t">Instructions</div>
-          <span class="quote">As in step 1, plus: “use the Fleischner 2017 guidelines and the attached PDFs.”</span>
+          <span class="quote">As in step 1, plus: “use the attached Fleischner 2017 guidelines.”</span>
         </div>
         <div class="layer l-context new">
-          <div class="t">Context <span class="tag">NEW</span></div>
+          <div class="t">Context</div>
           <div class="item">
             <svg width="30" height="36"><use href="#i-pdf"/></svg>
             <div><b>Fleischner Society 2017 guidelines</b><small>PDF · 16 pages (Radiology 2017;284:228–243)</small></div>
-          </div>
-          <div class="item">
-            <svg width="30" height="36"><use href="#i-pdf"/></svg>
-            <div><b>Reference article</b><small>PDF</small></div>
           </div>
           <div class="item">
             <svg width="30" height="36"><use href="#i-chat"/></svg>
@@ -273,7 +286,7 @@
           </div>
           <div class="item rag">
             <svg width="30" height="36"><use href="#i-db"/></svg>
-            <div><b>RAG, for larger libraries</b><small>Here the PDFs were attached whole. With many or long documents, retrieval-augmented generation (RAG) sends only the relevant passages.</small></div>
+            <div><b>RAG, for larger libraries</b><small>Here the guideline PDF was attached whole. With many or long documents, retrieval-augmented generation (RAG) sends only the relevant passages.</small></div>
           </div>
         </div>
         <div class="layer l-user">
@@ -285,10 +298,10 @@
       <div class="out-box">
         <div class="lbl">Report (abridged)</div>
         <div class="report">
-          <p><span class="sec">TECHNIQUE</span> <span class="ok">Non-contrast multidetector-row chest CT.</span></p>
-          <p><span class="sec">FINDINGS</span> Lungs: <span class="ok">solid nodule, superior segment (S6) right lower lobe, 7 mm mean diameter, smooth, no calcification or fat.</span></p>
-          <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
-          <p><span class="sec">RECOMMENDATION</span> <span class="ok">Low-dose non-contrast CT in 6–12 months</span>, consider 18–24 months <span class="ok">(Fleischner 2017)</span>.</p>
+          <p><span class="sec">Technique</span> <span class="ok">Non-contrast multidetector-row chest CT.</span></p>
+          <p><span class="sec">Findings</span> Lungs: <span class="ok">solid nodule, superior segment (S6) right lower lobe, 7 mm mean diameter, smooth, no calcification or fat.</span></p>
+          <p><span class="sec">Impression</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
+          <p><span class="sec">Recommendation</span> <span class="ok">Low-dose non-contrast CT in 6–12 months</span>, consider 18–24 months <span class="ok">(Fleischner 2017)</span>.</p>
         </div>
         <div class="verdict"><span class="v">✓ Complete nodule description and risk</span></div>
         <div class="checks"><span class="y">✓ Organization</span><span class="y">✓ Completeness</span><span class="y">✓ Fidelity</span></div>
@@ -296,7 +309,7 @@
     </section>
 
     <!-- STEP 3: TOOL USE -->
-    <section class="col c-tools">
+    <section class="col c-tools" style="--rise: 0px">
       <div class="head">
         <div class="step">Step 3</div>
         <h2>Tool use</h2>
@@ -312,7 +325,7 @@
           <span class="quote">As in step 2.</span>
         </div>
         <div class="layer l-tools new">
-          <div class="t">Tools <span class="tag">NEW</span></div>
+          <div class="t">Tools</div>
           <div class="item">
             <svg width="30" height="36"><use href="#i-calc"/></svg>
             <div><b>Fleischner calculator</b>
@@ -337,10 +350,10 @@
       <div class="out-box">
         <div class="lbl">Report · illustrative</div>
         <div class="report">
-          <p><span class="sec">TECHNIQUE</span> Non-contrast multidetector-row chest CT.</p>
-          <p><span class="sec">FINDINGS</span> <span class="same">As in step 2.</span></p>
-          <p><span class="sec">IMPRESSION</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
-          <p><span class="sec">RECOMMENDATION</span> <span class="ok">Low-dose non-contrast CT between May 8 and November 8, 2027</span>, consider 18–24 months <span class="ok">(Fleischner 2017)</span>.</p>
+          <p><span class="sec">Technique</span> Non-contrast multidetector-row chest CT.</p>
+          <p><span class="sec">Findings</span> <span class="same">As in step 2.</span></p>
+          <p><span class="sec">Impression</span> Incidental 7 mm solid nodule on right lower lobe, low risk.</p>
+          <p><span class="sec">Recommendation</span> <span class="ok">Low-dose non-contrast CT between May 8 and November 8, 2027</span>, consider 18–24 months <span class="ok">(Fleischner 2017)</span>.</p>
         </div>
         <div class="verdict"><span class="v">✓ Calculated, not guessed · actionable dates</span></div>
         <div class="checks"><span class="y">✓ Organization</span><span class="y">✓ Completeness</span><span class="y">✓ Fidelity</span></div>
