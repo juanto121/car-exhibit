@@ -44,8 +44,8 @@
   <figure>
     <div class="frame">
       <a href="figure/pipeline.png" title="Open the full-resolution figure">
-        <img src="figure/pipeline.png" width="3600" height="2860"
-             alt="Four columns, Base to Step 3. Base: the user prompt alone gives a thin report. Step 1, prompting: role, output format and clarifying-question instructions; the model asks for missing details. Step 2, context engineering: the Fleischner 2017 guideline and the radiologist's answers give a complete, guideline-based report. Step 3, tool use: calculators return the follow-up interval and dates.">
+        <img src="figure/pipeline.png" width="3600" height="2960"
+             alt="Four cards rising like steps over a mountain toward a flag at the summit. Base: the user prompt alone gives a thin report. Step 1, prompting: role, output format and clarifying-question instructions; the model asks for missing details. Step 2, context engineering: the Fleischner 2017 guideline and the radiologist's answers give a complete, guideline-based report. Step 3, tool use: calculators return the follow-up interval and dates.">
       </a>
     </div>
     <figcaption><b>Figure.</b> Stepwise framework applied to an incidental 7 mm solid pulmonary nodule (fictitious case). Each step adds a layer to the LLM input: instructions placed before the user prompt (prompting), the Fleischner 2017 guideline PDF and the radiologist's answers to the model's questions, with retrieval-augmented generation (RAG) as the option for larger document libraries (context engineering), and local calculators for the follow-up interval and dates (tool use). Abridged reports are compared for organization, completeness, and fidelity to supplied findings; the Step 3 report is illustrative.</figcaption>
